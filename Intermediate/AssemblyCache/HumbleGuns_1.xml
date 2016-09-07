@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HumbleGuns_1</name>
+    </assembly>
+    <members>
+        <member name="M:HumbleGuns.App.OnActivated">
+            <summary>
+            Called when [activated].
+            </summary>
+        </member>
+        <member name="M:HumbleGuns.App.OnDeactivate">
+            <summary>
+            Called when [deactivate].
+            </summary>
+        </member>
+        <member name="F:HumbleGuns.WaveContent.Assets.Textures.DefaultTexture_png">
+            <summary> Path to Content/Assets/Textures/DefaultTexture.png </summary>
+        </member>
+        <member name="F:HumbleGuns.WaveContent.Scenes.MyScene">
+            <summary> Path to Content/Scenes/MyScene.wscene </summary>
+        </member>
+    </members>
+</doc>
