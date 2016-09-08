@@ -30,9 +30,10 @@ namespace HumbleGuns
             vm.Stretch = StretchMode.UniformToFill;
 
             var ui = EntityManager.Find<Entity>("UserInterface");
-
+            var uic = new UIconnector(this);
+            ui.AddComponent(uic);
             //gc.Click += this.OnUIClick;
-            this.EntityManager.Add(gc);
+            //this.EntityManager.Add(gc);
         }
 
         private void OnUIClick(object sender, EventArgs e)

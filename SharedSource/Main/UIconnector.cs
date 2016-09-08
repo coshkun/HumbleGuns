@@ -31,12 +31,13 @@ namespace HumbleGuns
         private byte[] Pixels;
         private GCHandle PixelsHandle;
 
-        public UIconnector() : base()
+        public UIconnector(Scene currentScene) : base()
         {
             //texture = new Texture2D();
 
             ////ic = new ImageControl(Color.Black,100,25);
-            var ui = EntityManager.Find<Entity>("UserInterface");
+            var ui = currentScene.EntityManager.Find<Entity>("UserInterface");
+            //ui.AddComponent(new UIgrid(currentScene));
             //ui.AddComponent(ic);
             //var sp = ui.FindComponent<Sprite>(true);
             //sp.TexturePath = WaveContent.Assets.Textures.DefaultTexture_png;

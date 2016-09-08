@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// File generated on 8.09.2016 00:56:14
+// File generated on 9.09.2016 00:13:47
 namespace HumbleGuns
 {
     using System;

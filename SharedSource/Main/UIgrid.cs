@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Text;
 using WaveEngine.Components.UI;
 using WaveEngine.Framework;
@@ -9,6 +10,7 @@ using WaveEngine.Common.Graphics;
 
 namespace HumbleGuns
 {
+    [DataContract]
     public class UIgrid : Grid
     {
         private Scene cs;
