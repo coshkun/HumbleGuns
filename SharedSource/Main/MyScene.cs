@@ -7,6 +7,7 @@ using WaveEngine.Components.Cameras;
 using WaveEngine.Components.Graphics2D;
 using WaveEngine.Components.Graphics3D;
 using WaveEngine.Framework;
+using WaveEngine.Framework.Managers;
 using WaveEngine.Framework.Graphics;
 using WaveEngine.Framework.Resources;
 using WaveEngine.Framework.Services;
@@ -25,20 +26,13 @@ namespace HumbleGuns
         protected override void CreateScene()
         {
             this.Load(WaveContent.Scenes.MyScene);
+            var vm = this.VirtualScreenManager;
+            vm.Stretch = StretchMode.UniformToFill;
 
-            //var ui = EntityManager.Find<Entity>("UserInterface");
-            var button = new Button()
-            {
-                Text = string.Format("Next scene with {0}", this.Name),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Bottom,
-                Width = _game.WindowOwner.Width,
-                Margin = new Thickness(10),
-            };
+            var ui = EntityManager.Find<Entity>("UserInterface");
 
-            button.Click += this.OnUIClick;
-
-            this.EntityManager.Add(button);
+            //gc.Click += this.OnUIClick;
+            this.EntityManager.Add(gc);
         }
 
         private void OnUIClick(object sender, EventArgs e)

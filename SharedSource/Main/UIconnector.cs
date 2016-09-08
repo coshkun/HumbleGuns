@@ -36,7 +36,7 @@ namespace HumbleGuns
             //texture = new Texture2D();
 
             ////ic = new ImageControl(Color.Black,100,25);
-            //var ui = EntityManager.Find<Entity>("UserInterface");
+            var ui = EntityManager.Find<Entity>("UserInterface");
             //ui.AddComponent(ic);
             //var sp = ui.FindComponent<Sprite>(true);
             //sp.TexturePath = WaveContent.Assets.Textures.DefaultTexture_png;
