@@ -42,6 +42,10 @@ namespace HumbleGuns
         public UIconnector(Scene currentScene) : base()
         {
             CurrentScene = currentScene;
+            var vm = currentScene.VirtualScreenManager;
+            this.width = (int)vm.VirtualWidth;
+            this.height = (int)vm.VirtualHeight;
+
 
             ////ic = new ImageControl(Color.Black,100,25);
             ui = CurrentScene.EntityManager.Find<Entity>("UserInterface");

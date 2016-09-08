@@ -19,7 +19,7 @@ namespace HumbleGuns
 {
     public class MyScene : Scene
     {
-        public static Entity uiTarget;
+        public static VirtualScreenManager vm;
 
         private Game _game;
         public MyScene() : base() { }
@@ -28,6 +28,7 @@ namespace HumbleGuns
         protected override void CreateScene()
         {
             this.Load(WaveContent.Scenes.MyScene);
+
             var ui = EntityManager.Find<Entity>("UserInterface");
             var uic = new UIconnector(this);
             ui.AddComponent(uic);

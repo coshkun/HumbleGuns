@@ -54,20 +54,21 @@ namespace HumbleGuns
         {
             this.cs = CurrentScene;
             vm = cs.VirtualScreenManager;
-            vm.Stretch = StretchMode.UniformToFill;
-            SetUpGrid();
-
+            vm.Stretch = StretchMode.Uniform;
+            //SetUpGrid();
+            BackgroundColor = new Color("#333333");
             //Entity ui = CurrentScene.EntityManager.Find<Entity>("UserInterface");
 
             var button = new Button()
             {
-                //Text = string.Format("Next scene with {0}", this.Name),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Width = vm.VirtualWidth,
-                Height = vm.VirtualHeight,
+                Text = string.Format("W: {0}, H: {1}", vm.VirtualWidth, vm.VirtualHeight),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                Width = this.Width,
+                Height = this.Height,
+                IsBorder = true,
                 Margin = new Thickness(10),
-                //DrawOrder = -1
+                DrawOrder = -1
             };
 
             this.Add(button);
@@ -76,11 +77,11 @@ namespace HumbleGuns
 
         private void SetUpGrid()
         {
-            this.HorizontalAlignment = HorizontalAlignment.Center;
-            this.VerticalAlignment = VerticalAlignment.Center;
+            this.HorizontalAlignment = HorizontalAlignment.Left;
+            this.VerticalAlignment = VerticalAlignment.Top;
             this.Width = vm.VirtualWidth;
             this.Height = vm.VirtualHeight;
-            //this.DrawOrder = -1;
+            this.DrawOrder = -1;
             this.IsBorder = true;
             this.IsVisible = true;
             this.Margin = new Thickness(10);
