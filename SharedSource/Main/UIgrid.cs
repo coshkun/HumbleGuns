@@ -14,24 +14,35 @@ namespace HumbleGuns
         private Scene cs;
         private VirtualScreenManager vm;
         private ImageControl ic;
-        public ImageControl Interface { get; set; }
+        public ImageControl Interface
+        {
+            get
+            {   // Singleton ic
+                ImageControl imageControl = this.entity.FindComponent<ImageControl>();
+                if (imageControl == null)
+                {
+                    ic = new ImageControl(new Color(0,0,0,0), (int)this.Width, (int)this.Height);
+                    this.entity.AddComponent(ic)
+                               .AddComponent(new ImageControlRenderer());
+                }
+                return ic;
+            }
+            set
+            {
+                ic = value;
+            }
+        }
 
         public new Color BackgroundColor
         {
             get
             {
-                Color color = Color.White;
-
+                Color color = Color.Transparent;
                 ImageControl imageControl = this.entity.FindComponent<ImageControl>();
                 if (imageControl != null)
                 {
                     color = imageControl.TintColor;
                 }
-                else
-                {
-                    throw new Exception("This panel haven't background assigned");
-                }
-
                 return color;
             }
 
@@ -44,7 +55,8 @@ namespace HumbleGuns
                 }
                 else
                 {
-                    this.entity.AddComponent(new ImageControl(value, (int)this.Width, (int)this.Height))
+                    ic = new ImageControl(value, (int)this.Width, (int)this.Height);
+                    this.entity.AddComponent(ic)
                                .AddComponent(new ImageControlRenderer());
                 }
             }
@@ -55,24 +67,23 @@ namespace HumbleGuns
             this.cs = CurrentScene;
             vm = cs.VirtualScreenManager;
             vm.Stretch = StretchMode.Uniform;
-            //SetUpGrid();
+            SetUpGrid();
             BackgroundColor = new Color("#333333");
             //Entity ui = CurrentScene.EntityManager.Find<Entity>("UserInterface");
 
-            var button = new Button()
-            {
-                Text = string.Format("W: {0}, H: {1}", vm.VirtualWidth, vm.VirtualHeight),
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top,
-                Width = this.Width,
-                Height = this.Height,
-                IsBorder = true,
-                Margin = new Thickness(10),
-                DrawOrder = -1
-            };
+            //var button = new Button()   // debug only
+            //{
+            //    Text = string.Format("W: {0}, H: {1}", vm.VirtualWidth, vm.VirtualHeight),
+            //    HorizontalAlignment = HorizontalAlignment.Left,
+            //    VerticalAlignment = VerticalAlignment.Top,
+            //    IsBorder = true,
+            //    Margin = new Thickness(10),
+            //    DrawOrder = -1
+            //};
+            //button.Width = this.Width;
+            //button.Height = this.Height;
 
-            this.Add(button);
-            //CurrentScene.EntityManager.Add(this);
+            //this.Add(button);
         }
 
         private void SetUpGrid()

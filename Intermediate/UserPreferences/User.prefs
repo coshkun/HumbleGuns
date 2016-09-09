@@ -1,6 +1,6 @@
 ﻿<ProjectUserPreferences xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.datacontract.org/2004/07/WaveEditor.Core.Shared.Model">
   <Camera2dPosition xmlns:d2p1="http://schemas.datacontract.org/2004/07/WaveEngine.Common.Math">
-    <d2p1:X>17.6002121</d2p1:X>
+    <d2p1:X>5.100212</d2p1:X>
     <d2p1:Y>51.70002</d2p1:Y>
   </Camera2dPosition>
   <Camera2dZoom xmlns:d2p1="http://schemas.datacontract.org/2004/07/WaveEngine.Common.Math">
@@ -24,5 +24,5 @@
   <ErrorPauseEnabled>true</ErrorPauseEnabled>
   <GridEnabled>true</GridEnabled>
   <SceneId>ca1e2372-d6d6-46d2-b894-6ae25ffff02f</SceneId>
-  <SceneMode>mode2D</SceneMode>
+  <SceneMode>mode3D</SceneMode>
 </ProjectUserPreferences>

@@ -43,8 +43,8 @@ namespace HumbleGuns
         {
             CurrentScene = currentScene;
             var vm = currentScene.VirtualScreenManager;
-            this.width = (int)vm.VirtualWidth;
-            this.height = (int)vm.VirtualHeight;
+            //this.width = (int)vm.VirtualWidth;
+            //this.height = (int)vm.VirtualHeight;
 
 
             ////ic = new ImageControl(Color.Black,100,25);
