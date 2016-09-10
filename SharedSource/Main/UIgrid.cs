@@ -6,6 +6,8 @@ using WaveEngine.Framework;
 using WaveEngine.Framework.UI;
 using WaveEngine.Framework.Managers;
 using WaveEngine.Common.Graphics;
+using WaveEngine.Components.Graphics2D;
+using WaveEngine.Framework.Graphics;
 
 namespace HumbleGuns
 {
@@ -13,17 +15,18 @@ namespace HumbleGuns
     {
         private Scene cs;
         private VirtualScreenManager vm;
-        private ImageControl ic;
-        public ImageControl Interface
+        private Sprite ic;
+        public Sprite Interface
         {
             get
             {   // Singleton ic
-                ImageControl imageControl = this.entity.FindComponent<ImageControl>();
-                if (imageControl == null)
+                Sprite Sprite = this.entity.FindComponent<Sprite>();
+                if (Sprite == null)
                 {
-                    ic = new ImageControl(new Color(0,0,0,0), (int)this.Width, (int)this.Height);
+                    ic = new Sprite() { TintColor = new Color("333333") };
+                    ic.Texture = new Texture2D() { Width = (int)this.Width, Height = (int)this.Height, };
                     this.entity.AddComponent(ic)
-                               .AddComponent(new ImageControlRenderer());
+                               .AddComponent(new SpriteRenderer());
                 }
                 return ic;
             }
@@ -38,26 +41,27 @@ namespace HumbleGuns
             get
             {
                 Color color = Color.Transparent;
-                ImageControl imageControl = this.entity.FindComponent<ImageControl>();
-                if (imageControl != null)
+                Sprite Sprite = this.entity.FindComponent<Sprite>();
+                if (Sprite != null)
                 {
-                    color = imageControl.TintColor;
+                    color = Sprite.TintColor;
                 }
                 return color;
             }
 
             set
             {
-                ImageControl imageControl = this.entity.FindComponent<ImageControl>();
-                if (imageControl != null)
+                Sprite Sprite = this.entity.FindComponent<Sprite>();
+                if (Sprite != null)
                 {
-                    imageControl.TintColor = value;
+                    Sprite.TintColor = value;
                 }
                 else
                 {
-                    ic = new ImageControl(value, (int)this.Width, (int)this.Height);
+                    ic = new Sprite() { TintColor = new Color("333333") };
+                    ic.Texture = new Texture2D() { Width = (int)this.Width, Height = (int)this.Height };
                     this.entity.AddComponent(ic)
-                               .AddComponent(new ImageControlRenderer());
+                               .AddComponent(new SpriteRenderer());
                 }
             }
         }

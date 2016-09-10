@@ -14,5 +14,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)UIconnector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UIgrid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WaveContent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebCoreHelper.cs" />
   </ItemGroup>
 </Project>

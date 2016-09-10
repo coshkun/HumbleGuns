@@ -84,5 +84,6 @@ C:\GitHub\Games\HumbleGuns\Launchers\Windows\bin\AnyCPU\Debug\awesomium_process
 C:\GitHub\Games\HumbleGuns\Launchers\Windows\bin\AnyCPU\Debug\inspector.pak
 C:\GitHub\Games\HumbleGuns\Launchers\Windows\bin\AnyCPU\Debug\xinput9_1_0.dll
 C:\GitHub\Games\HumbleGuns\Launchers\Windows\bin\AnyCPU\Debug\pdf_js.pak
+C:\GitHub\Games\HumbleGuns\Launchers\Windows\obj\Debug\HumbleGuns.csprojResolveAssemblyReference.cache
 C:\GitHub\Games\HumbleGuns\Launchers\Windows\obj\Debug\HumbleGuns.exe
 C:\GitHub\Games\HumbleGuns\Launchers\Windows\obj\Debug\HumbleGuns.pdb
