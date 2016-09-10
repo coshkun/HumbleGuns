@@ -14,3 +14,87 @@
 [0910/123536:INFO:(0)] Running Awesomium 1.7.5.1
 [0910/124156:INFO:(0)] WebCore is now online.
 [0910/124156:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/003352:INFO:(0)] WebCore is now online.
+[0911/003352:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/003516:INFO:(0)] WebCore is now online.
+[0911/003516:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/003549:INFO:(0)] WebCore is now online.
+[0911/003549:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/003847:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: Yöntem çağrılırken bir hata oluştu. Hedef iş parçacığı artık yok.
+   konum: System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   konum: Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   konum: Awesomium.Core.WebCore.ioXQMTP1sf()
+[0911/003938:INFO:(0)] WebCore is now online.
+[0911/003938:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/003939:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: Yöntem çağrılırken bir hata oluştu. Hedef iş parçacığı artık yok.
+   konum: System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   konum: Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   konum: Awesomium.Core.WebCore.ioXQMTP1sf()
+[0911/004037:INFO:(0)] WebCore is now online.
+[0911/004037:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/004039:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: Yöntem çağrılırken bir hata oluştu. Hedef iş parçacığı artık yok.
+   konum: System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   konum: Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   konum: Awesomium.Core.WebCore.ioXQMTP1sf()
+[0911/004059:INFO:(0)] WebCore is now online.
+[0911/004059:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/005930:INFO:(0)] WebCore is now online.
+[0911/005930:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/010202:INFO:(0)] WebCore is now online.
+[0911/010202:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/010557:INFO:(0)] WebCore is now online.
+[0911/010557:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/023335:INFO:(0)] WebCore is now online.
+[0911/023335:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/023605:INFO:(0)] WebCore is now online.
+[0911/023605:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/023645:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: Yöntem çağrılırken bir hata oluştu. Hedef iş parçacığı artık yok.
+   konum: System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   konum: Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   konum: Awesomium.Core.WebCore.ioXQMTP1sf()
+[0911/023658:INFO:(0)] WebCore is now online.
+[0911/023658:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/023838:INFO:(0)] WebCore is now online.
+[0911/023838:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/024248:INFO:(0)] WebCore is now online.
+[0911/024248:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/024311:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: Yöntem çağrılırken bir hata oluştu. Hedef iş parçacığı artık yok.
+   konum: System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   konum: Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   konum: Awesomium.Core.WebCore.ioXQMTP1sf()
+[0911/024329:INFO:(0)] WebCore is now online.
+[0911/024329:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/024516:INFO:(0)] WebCore is now online.
+[0911/024516:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/024557:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: Yöntem çağrılırken bir hata oluştu. Hedef iş parçacığı artık yok.
+   konum: System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   konum: Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   konum: Awesomium.Core.WebCore.ioXQMTP1sf()
+[0911/024607:INFO:(0)] WebCore is now online.
+[0911/024607:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/024742:INFO:(0)] WebCore is now online.
+[0911/024742:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/024821:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: Yöntem çağrılırken bir hata oluştu. Hedef iş parçacığı artık yok.
+   konum: System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   konum: Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   konum: Awesomium.Core.WebCore.ioXQMTP1sf()
+[0911/024832:INFO:(0)] WebCore is now online.
+[0911/024832:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/024835:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: Yöntem çağrılırken bir hata oluştu. Hedef iş parçacığı artık yok.
+   konum: System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   konum: Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   konum: Awesomium.Core.WebCore.ioXQMTP1sf()
+[0911/025011:INFO:(0)] WebCore is now online.
+[0911/025011:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/025015:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: Yöntem çağrılırken bir hata oluştu. Hedef iş parçacığı artık yok.
+   konum: System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   konum: Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   konum: Awesomium.Core.WebCore.ioXQMTP1sf()
+[0911/025036:INFO:(0)] WebCore is now online.
+[0911/025036:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/025251:INFO:(0)] WebCore is now online.
+[0911/025251:INFO:(0)] Running Awesomium 1.7.5.1
+[0911/025303:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: Yöntem çağrılırken bir hata oluştu. Hedef iş parçacığı artık yok.
+   konum: System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   konum: Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   konum: Awesomium.Core.WebCore.ioXQMTP1sf()

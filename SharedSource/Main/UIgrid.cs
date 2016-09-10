@@ -15,18 +15,18 @@ namespace HumbleGuns
     {
         private Scene cs;
         private VirtualScreenManager vm;
-        private Sprite ic;
-        public Sprite Interface
+        private ImageControl ic;
+        public ImageControl Interface
         {
             get
             {   // Singleton ic
-                Sprite Sprite = this.entity.FindComponent<Sprite>();
+                ImageControl Sprite = this.entity.FindComponent<ImageControl>();
                 if (Sprite == null)
                 {
-                    ic = new Sprite() { TintColor = new Color("333333") };
-                    ic.Texture = new Texture2D() { Width = (int)this.Width, Height = (int)this.Height, };
+                    ic = new ImageControl(new Color("333333"), (int)this.Width, (int)this.Height);
+                    //ic.Texture = new Texture2D() { Width = (int)this.Width, Height = (int)this.Height, };
                     this.entity.AddComponent(ic)
-                               .AddComponent(new SpriteRenderer());
+                               .AddComponent(new ImageControlRenderer());
                 }
                 return ic;
             }
@@ -41,7 +41,7 @@ namespace HumbleGuns
             get
             {
                 Color color = Color.Transparent;
-                Sprite Sprite = this.entity.FindComponent<Sprite>();
+                ImageControl Sprite = this.entity.FindComponent<ImageControl>();
                 if (Sprite != null)
                 {
                     color = Sprite.TintColor;
@@ -51,17 +51,17 @@ namespace HumbleGuns
 
             set
             {
-                Sprite Sprite = this.entity.FindComponent<Sprite>();
+                ImageControl Sprite = this.entity.FindComponent<ImageControl>();
                 if (Sprite != null)
                 {
                     Sprite.TintColor = value;
                 }
                 else
                 {
-                    ic = new Sprite() { TintColor = new Color("333333") };
-                    ic.Texture = new Texture2D() { Width = (int)this.Width, Height = (int)this.Height };
+                    ic = new ImageControl(value, (int)this.Width, (int)this.Height);
+                    //ic.Texture = new Texture2D() { Width = (int)this.Width, Height = (int)this.Height };
                     this.entity.AddComponent(ic)
-                               .AddComponent(new SpriteRenderer());
+                               .AddComponent(new ImageControlRenderer());
                 }
             }
         }
