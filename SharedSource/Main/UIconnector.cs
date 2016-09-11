@@ -34,8 +34,8 @@ namespace HumbleGuns
         private bool isFocused = false;
         private bool isScrollable = false;
         private static List<WebView> webViewList = new List<WebView>();
-        private WebView webView;
-        private Texture2D texture;
+        private static WebView webView;
+        private static Texture2D texture;
         //private Color[] Pixels;
         //private GCHandle PixelsHandle;
 
@@ -63,6 +63,7 @@ namespace HumbleGuns
                 ui.AddComponent(webCoreHelper);
                 //WebCore.Run();
                 texture = new Texture2D() { Width = width, Height = height, Format = PixelFormat.R8G8B8A8, Faces = 1, Levels = 1, Usage = TextureUsage.Dynamic, CpuAccess = TextureCpuAccess.Write };
+                WaveServices.GraphicsDevice.Textures.UploadTexture(texture);
             }
 
             
@@ -132,18 +133,18 @@ namespace HumbleGuns
                 //RenderTarget rt = new RenderTarget(this.width, this.height);
                 if (surface == null) { return; }
 
-                if (!surface.IsDirty)
+                //if (!surface.IsDirty)
                 {
                     //surface.CopyTo(PixelsHandle.AddrOfPinnedObject(), surface.RowSpan, 4, true, true);
-                    texture.Data = CreateData(surface);
-                    WaveServices.GraphicsDevice.Textures.UploadTexture(texture);
+                    CreateData(surface, texture.Data);
+                    //WaveServices.GraphicsDevice.Textures.UploadTexture(texture);
                     //texture.SetPixels32(Pixels, 0);
                     //texture.Apply(false, false);
                 }
             }
         }
 
-        private static byte[][][] CreateData(BitmapSurface surface/*, byte[][][] data*/)
+        private static void CreateData(BitmapSurface surface, byte[][][] data)
         {
             // Copy to byte array
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
@@ -161,7 +162,7 @@ namespace HumbleGuns
             byte[] fromStream = ms.ToArray();
 
             // Build texture data
-            byte[][][] data = new byte[1][][];
+            data = new byte[1][][];
             data[0] = new byte[1][];
             data[0][0] = new byte[width * height * 4];
 
@@ -178,7 +179,8 @@ namespace HumbleGuns
 
             ms.Dispose();
             // Return
-            return data;
+            //return data;
+            WaveServices.GraphicsDevice.Textures.SetData(texture, ms.ToArray());
         }
 
         public void OnGUI(/*string name, object sender, EventArgs args*/)
