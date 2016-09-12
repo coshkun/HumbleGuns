@@ -26,7 +26,7 @@ namespace HumbleGuns
         // Public Variables
         public static int width = 512;
         public static int height = 512;
-        public string initialURL = "http://www.bing.com";
+        public string initialURL = "http://www.google.com.tr";
 
         //private UIgrid ug;
         private Entity ui;
@@ -66,7 +66,7 @@ namespace HumbleGuns
                 webCoreHelper = new WebCoreHelper();
                 ui.AddComponent(webCoreHelper);
                 //WebCore.Run();
-                texture = new Texture2D() { Width = width, Height = height, Format = PixelFormat.B8G8R8A8, Faces = 1, Levels = 1, Usage = TextureUsage.Dynamic, CpuAccess = TextureCpuAccess.Write, Type = TextureType.TextureVideo };
+                texture = new Texture2D() { Width = width, Height = height, Format = PixelFormat.R8G8B8A8, Faces = 1, Levels = 1, Usage = TextureUsage.Dynamic, CpuAccess = TextureCpuAccess.Write, Type = TextureType.TextureVideo };
                 tmpFileBuffer = Path.GetTempPath() + Guid.NewGuid().ToString() + ".jpg";
             }
 
@@ -177,22 +177,21 @@ namespace HumbleGuns
             int j, k; j = k = fromStream.Length; byte[] bfr =new byte[j];
             // invert stream buffer
             while (j >0) { bfr[fromStream.Length - j] = fromStream[j-1]; j--; }
-            byte R, G, B, A, swap; int offset = fromStream.Length - (width * height * 4);
-            while (k > offset)
+            byte R, G, B, A; int offset = fromStream.Length - (width * height * 4);
+            while (k > 0)
             {
                 
-                if ((k -  offset) % 4 == 0)
+                if (k % 4 == 0)
                 {
-                    G = bfr[k - 4];
-                    B = bfr[k - 3];
-                    R = bfr[k - 2];
-                    A = bfr[k - 1];
+                    A = bfr[k - 4];
+                    R = bfr[k - 3];
+                    G = bfr[k - 2];
+                    B = bfr[k - 1];
 
-                    //swap = R;
-                    //R = B;
-                    //B = G;
-                    //G = swap;
-                    //A = 255;
+                    bfr[k - 4] = B;
+                    bfr[k - 3] = G;
+                    bfr[k - 2] = R;
+                    bfr[k - 1] = A;
                 }
                 k--;
             }
