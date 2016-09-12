@@ -16,13 +16,13 @@
     <d2p1:Z>11.2950277</d2p1:Z>
   </Camera3dPosition>
   <Camera3dRotation xmlns:d2p1="WaveEngine.Common.Math">
-    <d2p1:X>-0.3933973</d2p1:X>
+    <d2p1:X>-0.393397272</d2p1:X>
     <d2p1:Y>-0.5759996</d2p1:Y>
-    <d2p1:Z>-6.25822E-08</d2p1:Z>
+    <d2p1:Z>-7.88147361E-08</d2p1:Z>
   </Camera3dRotation>
   <Camera3dSpeed>10</Camera3dSpeed>
   <ErrorPauseEnabled>true</ErrorPauseEnabled>
   <GridEnabled>true</GridEnabled>
   <SceneId>ca1e2372-d6d6-46d2-b894-6ae25ffff02f</SceneId>
-  <SceneMode>mode2D</SceneMode>
+  <SceneMode>mode3D</SceneMode>
 </ProjectUserPreferences>

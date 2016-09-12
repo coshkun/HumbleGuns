@@ -14,8 +14,8 @@
             Called when [deactivate].
             </summary>
         </member>
-        <member name="F:HumbleGuns.WaveContent.Assets.GUI.rendertarget_bmp">
-            <summary> Path to Content/Assets/GUI/rendertarget.bmp </summary>
+        <member name="F:HumbleGuns.WaveContent.Assets.GUI.rendertarget_jpg">
+            <summary> Path to Content/Assets/GUI/rendertarget.jpg </summary>
         </member>
         <member name="F:HumbleGuns.WaveContent.Assets.Textures.DefaultTexture_png">
             <summary> Path to Content/Assets/Textures/DefaultTexture.png </summary>

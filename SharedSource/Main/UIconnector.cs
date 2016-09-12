@@ -66,7 +66,7 @@ namespace HumbleGuns
                 webCoreHelper = new WebCoreHelper();
                 ui.AddComponent(webCoreHelper);
                 //WebCore.Run();
-                texture = new Texture2D() { Width = width, Height = height, Format = PixelFormat.R8G8B8A8, Faces = 1, Levels = 1, Usage = TextureUsage.Dynamic, CpuAccess = TextureCpuAccess.Write };
+                texture = new Texture2D() { Width = width, Height = height, Format = PixelFormat.B8G8R8A8, Faces = 1, Levels = 1, Usage = TextureUsage.Dynamic, CpuAccess = TextureCpuAccess.Write, Type = TextureType.TextureVideo };
                 tmpFileBuffer = Path.GetTempPath() + Guid.NewGuid().ToString() + ".jpg";
             }
 
@@ -146,9 +146,9 @@ namespace HumbleGuns
                 if (!webView.IsLoading)
                 {
                     //surface.CopyTo(PixelsHandle.AddrOfPinnedObject(), surface.RowSpan, 4, true, true);
-                    texture.Data = CreateData(surface);
-                    ic = new Sprite(WaveContent.Assets.GUI.rendertarget_jpg);
-                    ug.RemoveComponent<Sprite>(); ug.AddComponent(ic);
+                    /*texture.Data = */CreateData(surface);
+                    //ic = new Sprite(WaveContent.Assets.GUI.rendertarget_jpg);
+                    //ug.RemoveComponent<Sprite>(); ug.AddComponent(ic);
                     //WaveServices.GraphicsDevice.Textures.UploadTexture(ic.Texture);
                     //texture.SetPixels32(Pixels, 0);
                     //texture.Apply(false, false);
@@ -156,30 +156,55 @@ namespace HumbleGuns
             }
         }
 
-        private static byte[][][] CreateData(BitmapSurface surface /*byte[][][] data*/)
+        private static /*byte[][][]*/ void CreateData(BitmapSurface surface /*byte[][][] data*/)
         {
             // Copy to byte array
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
 
-            Drawing.Bitmap myBitmap = new Drawing.Bitmap(width, height, Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Drawing.Bitmap myBitmap = new Drawing.Bitmap(width, height, Drawing.Imaging.PixelFormat.Format32bppRgb);
             Drawing.Imaging.BitmapData bmpData = myBitmap.LockBits(
                                                     new Drawing.Rectangle(0, 0, myBitmap.Width, myBitmap.Height), 
                                                     Drawing.Imaging.ImageLockMode.WriteOnly, 
                                                     myBitmap.PixelFormat);
-            surface.CopyTo(bmpData.Scan0, surface.RowSpan, 4, true, true);
+            surface.CopyTo(bmpData.Scan0, surface.RowSpan, 4, false, false);
             myBitmap.UnlockBits(bmpData);
+            myBitmap.RotateFlip(System.Drawing.RotateFlipType.RotateNoneFlipX);
             myBitmap.Save(ms, Drawing.Imaging.ImageFormat.Bmp);
             // save to disk
             surface.SaveToJPEG(WaveContent.Assets.GUI.rendertarget_jpg);
 
             byte[] fromStream = ms.ToArray();
+            int j, k; j = k = fromStream.Length; byte[] bfr =new byte[j];
+            // invert stream buffer
+            while (j >0) { bfr[fromStream.Length - j] = fromStream[j-1]; j--; }
+            byte R, G, B, A, swap; int offset = fromStream.Length - (width * height * 4);
+            while (k > offset)
+            {
+                
+                if ((k -  offset) % 4 == 0)
+                {
+                    G = bfr[k - 4];
+                    B = bfr[k - 3];
+                    R = bfr[k - 2];
+                    A = bfr[k - 1];
+
+                    //swap = R;
+                    //R = B;
+                    //B = G;
+                    //G = swap;
+                    //A = 255;
+                }
+                k--;
+            }
+
+            WaveServices.GraphicsDevice.Textures.SetData(texture, bfr);
 
             //// Build texture data
             byte[][][] data = new byte[1][][];
-            //data[0] = new byte[1][];
+            data[0] = new byte[1][];
             //data[0][0] = new byte[width * height * 4];
-            ////data[0][0] = new byte[fromStream.Length];
-            ////for (int i = 0; i < fromStream.Length; i++) { data[0][0][i] = 55; }
+            data[0][0] = new byte[fromStream.Length];
+            for (int i = 0; i < fromStream.Length; i++) { data[0][0][i] = fromStream[i]; }
 
             //// Copy to texture data
             //int offset = fromStream.Length - data[0][0].Length;
@@ -193,7 +218,7 @@ namespace HumbleGuns
 
             ms.Dispose();
             // Return
-            return data;
+            //return data;
         }
 
         public void OnGUI(/*string name, object sender, EventArgs args*/)
