@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>HumbleGuns_1</name>
+        <name>HumbleGuns_3</name>
     </assembly>
     <members>
         <member name="M:HumbleGuns.App.OnActivated">

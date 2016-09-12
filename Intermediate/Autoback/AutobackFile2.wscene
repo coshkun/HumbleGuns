@@ -53,7 +53,7 @@
             <d6p1:X>0</d6p1:X>
             <d6p1:Y>0</d6p1:Y>
           </d5p1:Viewport>
-          <d5p1:AspectRatio>1.78217816</d5p1:AspectRatio>
+          <d5p1:AspectRatio>1.27298856</d5p1:AspectRatio>
         </d4p1:Component>
         <d4p1:Component xmlns:d5p1="WaveEngine.Framework.Sound" i:type="d5p1:SoundListener3D">
           <d4p1:IsActive>true</d4p1:IsActive>
@@ -224,8 +224,8 @@
           <d5p1:Effect>None</d5p1:Effect>
           <d5p1:Opacity>1</d5p1:Opacity>
           <d5p1:Rectangle xmlns:d6p1="http://schemas.datacontract.org/2004/07/WaveEngine.Common.Math">
-            <d6p1:Height>0</d6p1:Height>
-            <d6p1:Width>0</d6p1:Width>
+            <d6p1:Height>600</d6p1:Height>
+            <d6p1:Width>800</d6p1:Width>
             <d6p1:X>0</d6p1:X>
             <d6p1:Y>0</d6p1:Y>
           </d5p1:Rectangle>

@@ -8,6 +8,8 @@ using WaveEngine.Framework.Managers;
 using WaveEngine.Common.Graphics;
 using WaveEngine.Components.Graphics2D;
 using WaveEngine.Framework.Graphics;
+using WaveEngine.Components.Gestures;
+using WaveEngine.Framework.Physics2D;
 
 namespace HumbleGuns
 {
@@ -16,24 +18,25 @@ namespace HumbleGuns
         private Scene cs;
         private VirtualScreenManager vm;
         private ImageControl ic;
-        public ImageControl Interface
+        private Sprite _interface;
+        public Sprite Interface
         {
             get
             {   // Singleton ic
-                ImageControl Sprite = this.entity.FindComponent<ImageControl>();
+                //ImageControl Sprite = this.entity.FindComponent<ImageControl>();
+                Sprite Sprite = this.entity.FindComponent<Sprite>();
                 if (Sprite == null)
                 {
-                    ic = new ImageControl(new Color("333333"), (int)this.Width, (int)this.Height);
+                    Sprite = new Sprite(WaveContent.Assets.GUI.rendertarget_jpg);
                     //ic.Texture = new Texture2D() { Width = (int)this.Width, Height = (int)this.Height, };
-                    this.entity.AddComponent(ic)
-                               .AddComponent(new ImageControlRenderer());
+                    this.entity.AddComponent(Sprite)
+                               .AddComponent(new SpriteRenderer(DefaultLayers.Opaque))
+                               .AddComponent(new RectangleCollider2D())
+                               .AddComponent(new TouchGestures() { EnabledGestures = SupportedGesture.Translation });
                 }
-                return ic;
+                return Sprite;
             }
-            set
-            {
-                ic = value;
-            }
+            set { _interface = value; }
         }
 
         public new Color BackgroundColor
@@ -72,7 +75,9 @@ namespace HumbleGuns
             vm = cs.VirtualScreenManager;
             vm.Stretch = StretchMode.Uniform;
             SetUpGrid();
-            BackgroundColor = new Color("#333333");
+            //BackgroundColor = new Color("#333333");
+            var i = this.Interface;
+            i.Transform2D = new Transform2D() { X = 0, Y = 0, DrawOrder = -1 };
             //Entity ui = CurrentScene.EntityManager.Find<Entity>("UserInterface");
 
             //var button = new Button()   // debug only

@@ -14,11 +14,25 @@
             Called when [deactivate].
             </summary>
         </member>
+        <member name="F:HumbleGuns.WaveContent.Assets.GUI.rendertarget_bmp">
+            <summary> Path to Content/Assets/GUI/rendertarget.bmp </summary>
+        </member>
         <member name="F:HumbleGuns.WaveContent.Assets.Textures.DefaultTexture_png">
             <summary> Path to Content/Assets/Textures/DefaultTexture.png </summary>
         </member>
         <member name="F:HumbleGuns.WaveContent.Scenes.MyScene">
             <summary> Path to Content/Scenes/MyScene.wscene </summary>
+        </member>
+        <member name="M:HumbleGuns.WebCoreHelper.#ctor">
+            <summary>
+            Instantiates Webcore Updater Class with given tick delay in miliseconds (20ms is default)
+            </summary>
+        </member>
+        <member name="M:HumbleGuns.WebCoreHelper.#ctor(System.Int32)">
+            <summary>
+            Instantiates Webcore Updater Class with given tick delay in miliseconds (20ms is default)
+            </summary>
+            <param name="TickDelay">Tick delay in miliseconds (20ms is default)</param>
         </member>
     </members>
 </doc>

@@ -29,19 +29,14 @@ namespace HumbleGuns
         {
             this.Load(WaveContent.Scenes.MyScene);
 
+            var cam2 = EntityManager.Find<Entity>("defaultCamera2D");
+            var t = cam2.FindComponent<Transform2D>();
+            t.LocalPosition = new Vector2(VirtualScreenManager.VirtualWidth/2, 
+                                          VirtualScreenManager.VirtualHeight/2);
+
             var ui = EntityManager.Find<Entity>("UserInterface");
             var uic = new UIconnector(this);
             ui.AddComponent(uic);
-
-            //var ui = EntityManager.Find<Entity>("UserInterface");
-            //Entity uig = new UIgrid(this).Entity;
-            //uig.AddComponent(new UIconnector(this));
-            //uiTarget.AddComponent(new UIconnector(this));
-            //uiTarget.AddChild(uig);
-            //uiTarget.AddComponent(new Transform2D() { X=0,Y=0, TranformMode= Transform2D.TransformMode.Standard });
-            //uiTarget.AddComponent(new Sprite(WaveContent.Assets.Textures.DefaultTexture_png));
-            //uiTarget.AddComponent(new SpriteRenderer(DefaultLayers.GUI, AddressMode.LinearClamp));
-            //EntityManager.Add(uiTarget);
         }
 
         private void OnUIClick(object sender, EventArgs e)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
@@ -25,7 +26,7 @@ namespace HumbleGuns
         // Public Variables
         public static int width = 512;
         public static int height = 512;
-        public string initialURL = "http://google.com";
+        public string initialURL = "http://www.bing.com";
 
         //private UIgrid ug;
         private Entity ui;
@@ -36,6 +37,9 @@ namespace HumbleGuns
         private static List<WebView> webViewList = new List<WebView>();
         private static WebView webView;
         private static Texture2D texture;
+        private static Sprite ic;
+        private static Entity ug;
+        private static string tmpFileBuffer;
         //private Color[] Pixels;
         //private GCHandle PixelsHandle;
 
@@ -45,13 +49,13 @@ namespace HumbleGuns
         {
             CurrentScene = currentScene;
             var vm = currentScene.VirtualScreenManager;
-            //this.width = (int)vm.VirtualWidth;
-            //this.height = (int)vm.VirtualHeight;
+            width = (int)vm.VirtualWidth;
+            height = (int)vm.VirtualHeight;
 
 
             ////ic = new ImageControl(Color.Black,100,25);
             ui = CurrentScene.EntityManager.Find<Entity>("UserInterface");
-            var ug = new UIgrid(currentScene).Entity;
+            ug = new UIgrid(currentScene).Entity;
             ui.AddChild(ug);
 
             // Initialize the WebCore if it's not active
@@ -63,7 +67,7 @@ namespace HumbleGuns
                 ui.AddComponent(webCoreHelper);
                 //WebCore.Run();
                 texture = new Texture2D() { Width = width, Height = height, Format = PixelFormat.R8G8B8A8, Faces = 1, Levels = 1, Usage = TextureUsage.Dynamic, CpuAccess = TextureCpuAccess.Write };
-                WaveServices.GraphicsDevice.Textures.UploadTexture(texture);
+                tmpFileBuffer = Path.GetTempPath() + Guid.NewGuid().ToString() + ".jpg";
             }
 
             
@@ -74,10 +78,11 @@ namespace HumbleGuns
             //Pixels = texture.GetData();
             //PixelsHandle = GCHandle.Alloc(Pixels, GCHandleType.Pinned);
 
-            var ic = ug.FindComponent<ImageControl>();
+            ic = ug.FindComponent<Sprite>();
             if (ic != null)
             {
-                ic = new ImageControl(texture);
+                ug.RemoveComponent<Sprite>(); ug.AddComponent(new Sprite(texture));
+                WaveServices.GraphicsDevice.Textures.UploadTexture(texture);
             }
             else
             {
@@ -124,7 +129,12 @@ namespace HumbleGuns
             if(ui.IsDisposed)
             {
                 // We shutdown the WebCore only once
-                if (WebCore.IsInitialized) { ui.RemoveComponent<WebCoreHelper>(); WebCore.Shutdown(); }
+                if (WebCore.IsInitialized)
+                {
+                    ui.RemoveComponent<WebCoreHelper>();
+                    WebCore.Shutdown();
+                    if (File.Exists(tmpFileBuffer)) { File.Delete(tmpFileBuffer); }
+                }
             }
 
             if (WebCore.IsRunning)
@@ -133,18 +143,20 @@ namespace HumbleGuns
                 //RenderTarget rt = new RenderTarget(this.width, this.height);
                 if (surface == null) { return; }
 
-                //if (!surface.IsDirty)
+                if (!webView.IsLoading)
                 {
                     //surface.CopyTo(PixelsHandle.AddrOfPinnedObject(), surface.RowSpan, 4, true, true);
-                    CreateData(surface, texture.Data);
-                    //WaveServices.GraphicsDevice.Textures.UploadTexture(texture);
+                    texture.Data = CreateData(surface);
+                    ic = new Sprite(WaveContent.Assets.GUI.rendertarget_jpg);
+                    ug.RemoveComponent<Sprite>(); ug.AddComponent(ic);
+                    //WaveServices.GraphicsDevice.Textures.UploadTexture(ic.Texture);
                     //texture.SetPixels32(Pixels, 0);
                     //texture.Apply(false, false);
                 }
             }
         }
 
-        private static void CreateData(BitmapSurface surface, byte[][][] data)
+        private static byte[][][] CreateData(BitmapSurface surface /*byte[][][] data*/)
         {
             // Copy to byte array
             System.IO.MemoryStream ms = new System.IO.MemoryStream();
@@ -157,30 +169,31 @@ namespace HumbleGuns
             surface.CopyTo(bmpData.Scan0, surface.RowSpan, 4, true, true);
             myBitmap.UnlockBits(bmpData);
             myBitmap.Save(ms, Drawing.Imaging.ImageFormat.Bmp);
+            // save to disk
+            surface.SaveToJPEG(WaveContent.Assets.GUI.rendertarget_jpg);
 
-            
             byte[] fromStream = ms.ToArray();
 
-            // Build texture data
-            data = new byte[1][][];
-            data[0] = new byte[1][];
-            data[0][0] = new byte[width * height * 4];
+            //// Build texture data
+            byte[][][] data = new byte[1][][];
+            //data[0] = new byte[1][];
+            //data[0][0] = new byte[width * height * 4];
+            ////data[0][0] = new byte[fromStream.Length];
+            ////for (int i = 0; i < fromStream.Length; i++) { data[0][0][i] = 55; }
 
-            // Copy to texture data
-            int offset = fromStream.Length - data[0][0].Length;
-            int limit = width * 4;
-            for (int i = 0; i < data[0][0].Length; i++)
-            {
-
-                int row = width - (int)(Math.Round((double)(i / limit), MidpointRounding.AwayFromZero) - 1) - 2;
-                int index = row * limit + i % limit;
-                data[0][0][index] = fromStream[offset + i];
-            }
+            //// Copy to texture data
+            //int offset = fromStream.Length - data[0][0].Length;
+            //int limit = width * 4;
+            //for (int i = 0; i < data[0][0].Length; i++)
+            //{
+            //    int row = width - (int)(Math.Round((double)(i / limit), MidpointRounding.AwayFromZero) - 1) - 2;
+            //    int index = row * limit + i % limit;
+            //    data[0][0][index] = fromStream[offset + i];
+            //}
 
             ms.Dispose();
             // Return
-            //return data;
-            WaveServices.GraphicsDevice.Textures.SetData(texture, ms.ToArray());
+            return data;
         }
 
         public void OnGUI(/*string name, object sender, EventArgs args*/)
