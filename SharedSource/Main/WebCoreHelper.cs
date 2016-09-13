@@ -10,7 +10,7 @@ namespace HumbleGuns
 
     public class WebCoreHelper : Behavior
     {
-        int tickDelay = 20; //in miliseconds
+        int tickDelay = 2; //in miliseconds
 
         /// <summary>
         /// Instantiates Webcore Updater Class with given tick delay in miliseconds (20ms is default)
@@ -24,7 +24,8 @@ namespace HumbleGuns
 
         protected override void Update(TimeSpan gameTime)
         {
-            if ((gameTime.TotalMilliseconds % tickDelay) == 0) { tick(); }
+            if ((gameTime.Milliseconds % tickDelay) == 0)
+            { tick(); }
         }
 
         public void tick() { WebCore.Update(); }
@@ -32,15 +33,16 @@ namespace HumbleGuns
 
     public static class UIEventListener
     {
-        static int tickDelay = 20; //in miliseconds
+        static int tickDelay = 10; //in miliseconds
+        static DateTime hitTime;
 
-        public static event OnGuiEventHandler OnGUI;
+        private static event OnGuiEventHandler OnGUI;
         public static EventArgs e = null;
         static bool  stopped = true;
 
         public static void UpdateEvents(this UIconnector source)
         {
-
+            OnGUI += source.OnGui;
             if (stopped) { return; }
             //while (true)
             //{
@@ -48,9 +50,9 @@ namespace HumbleGuns
                 if (OnGUI != null)
                 {
                     OnGUI(source, e, string.Empty);
+                    hitTime = DateTime.Now;
                 }
             //}
-            stopped = false;
         }
 
         public static void StartListener(this UIconnector source) { stopped = false; }
@@ -59,5 +61,6 @@ namespace HumbleGuns
         /// Int as miliseconds (default value is 20ms).
         /// </summary>
         public static int TickDelay { get { return tickDelay; } set { tickDelay = value; } }
+        public static DateTime HitTime { get { return hitTime; } /* set { hitTime = value; } */}
     }
 }

@@ -10,6 +10,7 @@ using WaveEngine.Framework;
 using WaveEngine.Components.UI;
 using WaveEngine.Common.Graphics;
 using WaveEngine.Framework.Graphics;
+using WaveEngine.Common.Math;
 using System.Runtime.InteropServices;
 using WaveEngine.Components.Graphics2D;
 using WaveEngine.Framework.UI;
@@ -17,6 +18,8 @@ using WaveEngine.Framework.Managers;
 using WaveEngine.Components.Gestures;
 using System.Reflection;
 using WaveEngine.Framework.Services;
+using WaveEngine.Framework.Physics2D;
+using WaveEngine.Framework.Diagnostic;
 
 namespace HumbleGuns
 {
@@ -25,7 +28,7 @@ namespace HumbleGuns
     [DataContract]
     public class UIconnector : Behavior
     {
-        //public event OnGuiEventHandler OnGUI;
+        public event OnGuiEventHandler OnGUI;
 
         // Public Variables
         public static int width = 512;
@@ -44,6 +47,7 @@ namespace HumbleGuns
         private static Sprite ic;
         private static Entity ug;
         private static string tmpFileBuffer;
+        private static Vector2 cam2pos;
 
         public Scene CurrentScene { get; private set; }
 
@@ -59,6 +63,8 @@ namespace HumbleGuns
             ui = CurrentScene.EntityManager.Find<Entity>("UserInterface");
             ug = new UIgrid(currentScene).Entity;
             ui.AddChild(ug);
+            cam2pos = CurrentScene.EntityManager.Find<Entity>("defaultCamera2D")
+                          .FindComponent<Transform2D>().ScreenPosition;
 
             // Initialize the WebCore if it's not active
             if (!WebCore.IsInitialized)
@@ -95,7 +101,9 @@ namespace HumbleGuns
                 throw new Exception("Game Object has no Material or GUI Texture, we cannot render a web-page to this object!");
             }
 
+            this.OnGUI += OnGui;
             RegisterEvents();
+            this.StartListener();
         }
 
         // Start loading a certain URL
@@ -129,6 +137,32 @@ namespace HumbleGuns
                 webView.Reload(true);
         }
 
+        public void Focus()
+        {
+            if (!WebCore.IsInitialized)
+                return;
+
+            // Unfocus all open webViews, then focus the webView that was just clicked
+
+            foreach (WebView view in webViewList)
+                view.UnfocusView();
+
+            webView.FocusView();
+            isFocused = true;
+        }
+
+        public void Unfocus()
+        {
+            if (!WebCore.IsInitialized)
+                return;
+
+            // Unfocus all open webViews
+
+            foreach (WebView view in webViewList)
+                view.UnfocusView();
+
+            isFocused = false;
+        }
 
         protected override void Update(TimeSpan gameTime)
         {
@@ -143,7 +177,7 @@ namespace HumbleGuns
                 }
             }
 
-            if (WebCore.IsRunning)
+            if (WebCore.IsInitialized)
             {
                 BitmapSurface surface = (BitmapSurface)webView.Surface;
                 //RenderTarget
@@ -152,11 +186,10 @@ namespace HumbleGuns
                 if (!webView.IsLoading)
                 {
                     CreateData(surface);
-
                 }
             }
 
-            if ((gameTime.TotalMilliseconds % (int)(UIEventListener.TickDelay * 1.5)) == 0) { UIEventListener.UpdateEvents(this); }
+            if ((gameTime.Milliseconds % (int)(UIEventListener.TickDelay * 1.5)) == 0) { UIEventListener.UpdateEvents(this); }
         }
 
         private static void CreateData(BitmapSurface surface)
@@ -226,22 +259,41 @@ namespace HumbleGuns
             ms.Dispose();
         }
 
-        public void OnGUI(object sender, EventArgs args, string name)
+        public void OnGui(object sender, EventArgs args, string name)
         {
             if (!WebCore.IsInitialized)
                 return;
+
+            //var t = UIEventListener.HitTime;
+            var ks = WaveServices.Input.KeyboardState;
+            var ms = WaveServices.Input.MouseState;
+            
+
+            Ray r = new WaveEngine.Common.Math.Ray(ms.Position.ToVector3(1), ms.Position.ToVector3(-1));
+            
+            var cldr = ug.FindComponent<RectangleCollider2D>();
+            if (cldr.Intersects(ref r))
+            {
+                //int x = (int)r.Position.X;
+                //int y = (int)r.Position.Y;
+                webView.InjectMouseMove(ms.X, ms.Y);
+                webView.InjectMouseUp(MouseButton.Left);
+            }
+            Labels.Add("x: ", ms.X);
+            Labels.Add("y :", ms.Y);
+            if (ms.LeftButton == WaveEngine.Common.Input.ButtonState.Pressed) { System.Windows.Forms.MessageBox.Show("Tick");  }
         }
 
         private void RegisterEvents()
         {
-            var eventList = typeof(TouchGestures).GetEvents();
-            foreach (EventInfo ei in eventList)
-            {
-                //var eventInfo = typeof(TouchGestures).GetEvent(ei.Name);
-                //OnGuiEventHandler delegateForMethod = (sender, args, name) => OnGUI(sender, args, ei.Name);
-                //ei.AddEventHandler(this, delegateForMethod);
-                
-            }
+            //var eventList = typeof(TouchGestures).GetEvents();
+            //foreach (EventInfo ei in eventList)
+            //{
+            //    var eventInfo = typeof(TouchGestures).GetEvent(ei.Name);
+            //    OnGuiEventHandler delegateForMethod = (sender, args, name) => OnGUI(sender, args, ei.Name);
+            //    //ei.AddEventHandler(this, delegateForMethod);
+            //    MethodInfo nm = ei.RaiseMethod;
+            //}
         }
     }
 }

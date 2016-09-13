@@ -27,6 +27,7 @@ namespace HumbleGuns
 
         protected override void CreateScene()
         {
+            WaveServices.ScreenContextManager.SetDiagnosticsActive(true);
             this.Load(WaveContent.Scenes.MyScene);
 
             var cam2 = EntityManager.Find<Entity>("defaultCamera2D");
@@ -34,6 +35,7 @@ namespace HumbleGuns
             t.LocalPosition = new Vector2(VirtualScreenManager.VirtualWidth/2, 
                                           VirtualScreenManager.VirtualHeight/2);
 
+            
             var ui = EntityManager.Find<Entity>("UserInterface");
             var uic = new UIconnector(this);
             ui.AddComponent(uic);
