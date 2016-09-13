@@ -38,9 +38,5 @@ namespace HumbleGuns
             var uic = new UIconnector(this);
             ui.AddComponent(uic);
         }
-
-        private void OnUIClick(object sender, EventArgs e)
-        {
-        }
     }
 }

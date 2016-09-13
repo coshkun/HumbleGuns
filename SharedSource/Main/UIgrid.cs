@@ -27,12 +27,12 @@ namespace HumbleGuns
                 Sprite Sprite = this.entity.FindComponent<Sprite>();
                 if (Sprite == null)
                 {
-                    Sprite = new Sprite(WaveContent.Assets.GUI.rendertarget_jpg);
+                    Sprite = new Sprite(WaveContent.Assets.Textures.DefaultTexture_png);
                     //ic.Texture = new Texture2D() { Width = (int)this.Width, Height = (int)this.Height, };
                     this.entity.AddComponent(Sprite)
                                .AddComponent(new SpriteRenderer(DefaultLayers.Opaque))
                                .AddComponent(new RectangleCollider2D())
-                               .AddComponent(new TouchGestures() { EnabledGestures = SupportedGesture.Translation });
+                               .AddComponent(new TouchGestures() { EnabledGestures = SupportedGesture.None });
                 }
                 return Sprite;
             }

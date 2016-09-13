@@ -37,7 +37,7 @@
           <d5p1:ClearFlags>All</d5p1:ClearFlags>
           <d5p1:FarPlane>1000</d5p1:FarPlane>
           <d5p1:FieldOfView>0.7853982</d5p1:FieldOfView>
-          <d5p1:IsActive>true</d5p1:IsActive>
+          <d5p1:IsActive>false</d5p1:IsActive>
           <d5p1:LayerMaskDefaultValue>true</d5p1:LayerMaskDefaultValue>
           <d5p1:NearPlane>1</d5p1:NearPlane>
           <d5p1:UpVector xmlns:d6p1="WaveEngine.Common.Math">
