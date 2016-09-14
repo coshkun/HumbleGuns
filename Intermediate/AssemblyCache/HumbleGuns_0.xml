@@ -34,5 +34,10 @@
             </summary>
             <param name="TickDelay">Tick delay in miliseconds (20ms is default)</param>
         </member>
+        <member name="P:HumbleGuns.UIEventListener.TickDelay">
+            <summary>
+            Int as miliseconds (default value is 20ms).
+            </summary>
+        </member>
     </members>
 </doc>

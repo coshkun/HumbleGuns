@@ -10,21 +10,22 @@ namespace HumbleGuns
 
     public class WebCoreHelper : Behavior
     {
-        int tickDelay = 2; //in miliseconds
+        int tickDelay = 20; //in miliseconds
+        DateTime counter;
 
         /// <summary>
         /// Instantiates Webcore Updater Class with given tick delay in miliseconds (20ms is default)
         /// </summary>
-        public WebCoreHelper() : base("WebCoreHelper") { }
+        public WebCoreHelper() : base("WebCoreHelper") { counter = DateTime.Now; }
         /// <summary>
         /// Instantiates Webcore Updater Class with given tick delay in miliseconds (20ms is default)
         /// </summary>
         /// <param name="TickDelay">Tick delay in miliseconds (20ms is default)</param>
-        public WebCoreHelper(int TickDelay) : base("WebCoreHelper") { tickDelay = TickDelay; }
+        public WebCoreHelper(int TickDelay) : base("WebCoreHelper") { counter = DateTime.Now; tickDelay = TickDelay; }
 
         protected override void Update(TimeSpan gameTime)
         {
-            if ((gameTime.Milliseconds % tickDelay) == 0)
+            //if ((DateTime.Now.Subtract(counter).Milliseconds % tickDelay) == 0)
             { tick(); }
         }
 
@@ -35,6 +36,7 @@ namespace HumbleGuns
     {
         static int tickDelay = 10; //in miliseconds
         static DateTime hitTime;
+        public static DateTime counter;
 
         private static event OnGuiEventHandler OnGUI;
         public static EventArgs e = null;
@@ -55,7 +57,7 @@ namespace HumbleGuns
             //}
         }
 
-        public static void StartListener(this UIconnector source) { stopped = false; }
+        public static void StartListener(this UIconnector source) { stopped = false; counter = DateTime.Now; }
         public static void StopListener(this UIconnector source)  { stopped = true;  }
         /// <summary>
         /// Int as miliseconds (default value is 20ms).

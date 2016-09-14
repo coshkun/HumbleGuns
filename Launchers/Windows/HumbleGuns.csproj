@@ -36,9 +36,9 @@
     <ApplicationIcon>Game.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Awesomium.Core, Version=1.7.5.1, Culture=neutral, PublicKeyToken=e1a0d7c8071a5214, processorArchitecture=x86">
+    <Reference Include="Awesomium.Core, Version=1.7.4.2, Culture=neutral, PublicKeyToken=e1a0d7c8071a5214, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Libs.Awesomium.1.7.5.1\Awesomium.Core.dll</HintPath>
+      <HintPath>..\..\packages\Libs.Awesomium.1.7.4.2\Awesomium.Core.dll</HintPath>
     </Reference>
     <Reference Include="WaveEngine.Adapter">
       <SpecificVersion>False</SpecificVersion>
@@ -75,12 +75,8 @@
     <EmbeddedResource Include="SplashScreen.wpk" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="awesomium.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="icudt.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="awesomium.dll" />
+    <Content Include="icudt.dll" />
   </ItemGroup>
   <Import Project="..\..\SharedSource\Main\HumbleGunsSource.projitems" Label="Shared" Condition="Exists('..\..\SharedSource\Main\HumbleGunsSource.projitems')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

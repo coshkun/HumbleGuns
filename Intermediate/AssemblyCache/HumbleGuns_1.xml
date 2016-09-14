@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HumbleGuns_1</name>
+    </assembly>
+    <members>
+        <member name="M:HumbleGuns.App.OnActivated">
+            <summary>
+            Called when [activated].
+            </summary>
+        </member>
+        <member name="M:HumbleGuns.App.OnDeactivate">
+            <summary>
+            Called when [deactivate].
+            </summary>
+        </member>
+        <member name="F:HumbleGuns.WaveContent.Assets.GUI.rendertarget_jpg">
+            <summary> Path to Content/Assets/GUI/rendertarget.jpg </summary>
+        </member>
+        <member name="F:HumbleGuns.WaveContent.Assets.Textures.DefaultTexture_png">
+            <summary> Path to Content/Assets/Textures/DefaultTexture.png </summary>
+        </member>
+        <member name="F:HumbleGuns.WaveContent.Scenes.MyScene">
+            <summary> Path to Content/Scenes/MyScene.wscene </summary>
+        </member>
+        <member name="M:HumbleGuns.WebCoreHelper.#ctor">
+            <summary>
+            Instantiates Webcore Updater Class with given tick delay in miliseconds (20ms is default)
+            </summary>
+        </member>
+        <member name="M:HumbleGuns.WebCoreHelper.#ctor(System.Int32)">
+            <summary>
+            Instantiates Webcore Updater Class with given tick delay in miliseconds (20ms is default)
+            </summary>
+            <param name="TickDelay">Tick delay in miliseconds (20ms is default)</param>
+        </member>
+        <member name="P:HumbleGuns.UIEventListener.TickDelay">
+            <summary>
+            Int as miliseconds (default value is 20ms).
+            </summary>
+        </member>
+    </members>
+</doc>
