@@ -34,7 +34,7 @@ namespace HumbleGuns
         // Public Variables
         public static int width = 512;
         public static int height = 512;
-        public string initialURL = "http://www.bing.com.tr";
+        public string initialURL = "http://www.google.com.tr";
 
         //private UIgrid ug;
         private Entity ui;
@@ -53,10 +53,12 @@ namespace HumbleGuns
         private static string tmpFileBuffer;
         private static Vector2 cam2pos;
         //hold Inputs
-        private static KeyboardState ks;
+        private static KeyboardState state;
         private static MouseState ms;
+        private static int Wheel;
 
         public Scene CurrentScene { get; private set; }
+        public KeyboardState ks { get; private set; }
 
         public UIconnector(Scene currentScene) : base()
         {
@@ -198,7 +200,11 @@ namespace HumbleGuns
                     CreateData(surface);
                 }
             }
-            
+            //hold inputs
+            state = WaveServices.Input.KeyboardState;
+            ms = WaveServices.Input.MouseState;
+            Wheel = ms.Wheel;
+
             //if ((gameTime.Milliseconds % (int)(UIEventListener.TickDelay * 1.5)) == 0) { UIEventListener.UpdateEvents(this); }
             /* if ((DateTime.Now.Subtract(UIEventListener.counter).Milliseconds % (int)(UIEventListener.TickDelay * 1.5)) == 0) */
             { UIEventListener.UpdateEvents(this); }
@@ -276,20 +282,62 @@ namespace HumbleGuns
             if (!WebCore.IsInitialized)
                 return;
 
-            //hold inputs
-            ks = WaveServices.Input.KeyboardState;
-            ms = WaveServices.Input.MouseState;
+            ////hold inputs
+            //ks = WaveServices.Input.KeyboardState;
+            //ms = WaveServices.Input.MouseState;
+            OnMouseOver();
+            OnMouseDown();
+            bool chk = CheckIfAnyKeyPressed(state);
 
-            int latency = UIEventListener.HitTime.Subtract(UIEventListener.counter).Milliseconds;
+            // We only inject keyboard input when the GameObject has focus
+            if (isFocused == true)
+            {
+                if (chk)
+                {
+                    char? rslt = IsCharKeys(ks);
+                    if (rslt == null)
+                    {
+                        WebKeyboardEvent keyEvent = new WebKeyboardEvent();
+                        keyEvent.Type = WebKeyboardEventType.KeyDown;
+                        keyEvent.VirtualKeyCode = MapKeys(state);
+                        keyEvent.Modifiers = MapModifiers(state);
+                        webView.InjectKeyboardEvent(keyEvent);
+                    }
+                    else
+                    {
+                        WebKeyboardEvent keyEvent = new WebKeyboardEvent();
+                        keyEvent.Type = WebKeyboardEventType.Char;
+                        keyEvent.Text = rslt.ToString();  // new ushort[] { ushort.Parse(rslt), 0, 0, 0 };
+                        keyEvent.Modifiers = MapModifiers(ks);
+                        webView.InjectKeyboardEvent(keyEvent);
+                    }
+                }
+                else //if (e.type == WebKeyboardEventType.KeyUp)
+                {
+                    WebKeyboardEvent keyEvent = new WebKeyboardEvent();
+                    keyEvent.Type = WebKeyboardEventType.KeyUp;
+                    keyEvent.VirtualKeyCode = MapKeys(state);
+                    keyEvent.Modifiers = MapModifiers(state);
+                    webView.InjectKeyboardEvent(keyEvent);
+                }
+            }
+
+            //int latency = UIEventListener.HitTime.Subtract(UIEventListener.counter).Milliseconds;
             Labels.Add("x: ", ms.X);
             Labels.Add("y :", ms.Y);
-            Labels.Add("Latency: ", latency.ToString());
-
-            OnMouseOver(latency);
-            OnMouseDown(latency);
+            Labels.Add("whl: ", chk.ToString());
         }
 
-        private void OnMouseOver(int latency)
+        private bool CheckIfAnyKeyPressed(KeyboardState state)
+        {
+            bool rslt = false; int k = 0;
+            do {
+                rslt = state.IsKeyPressed((Keys)k); if (rslt) { break; }
+                k++; } while (k <= 250);
+            return rslt;
+        }
+
+        private void OnMouseOver()
         {
             if (!WebCore.IsInitialized)
                 return;
@@ -297,20 +345,19 @@ namespace HumbleGuns
             if (!isFocused)
                 Focus();
 
-            int x = ms.X;
-            int y = ms.Y;
             //Ray r = new WaveEngine.Common.Math.Ray(new Vector3(x,y,1), new Vector3(x, y, -1));
 
             //var cldr = ug.FindComponent<RectangleCollider2D>();
             //isColliding = cldr.Intersects(ref r);
             //if (latency % 2 == 0)
             //{
-                webView.InjectMouseMove(x, y);
+                webView.InjectMouseMove(ms.X, ms.Y);
+                webView.InjectMouseWheel((int)Wheel,0);
             //    return;
             //}
         }
 
-        private void OnMouseDown(int latency)
+        private void OnMouseDown()
         {
             if (!WebCore.IsInitialized)
                 return;
@@ -319,36 +366,38 @@ namespace HumbleGuns
                 Focus();
 
             //Ray r = new WaveEngine.Common.Math.Ray(ms.Position.ToVector3(1), ms.Position.ToVector3(-1));
-
             //var cldr = ug.FindComponent<RectangleCollider2D>();
             //if (cldr.Intersects(ref r))
             //{
-            //    webView.InjectMouseMove(ms.X, ms.Y);
 
+            webView.InjectMouseMove(ms.X, ms.Y);
+            // Presed
             if (ms.LeftButton == ButtonState.Pressed)
             {
-                //webView.InjectMouseMove(ms.X, ms.Y);
-                webView.InjectMouseDown(MouseButton.Left);
+                webView.InjectMouseDown(MouseButton.Left); return;
             }
-            else { webView.InjectMouseUp(MouseButton.Left); return; }
-            //}
-
-        }
-
-        private void OnMouseUp()
-        {
-            if (!WebCore.IsInitialized)
-                return;
-
-            Ray r = new WaveEngine.Common.Math.Ray(ms.Position.ToVector3(1), ms.Position.ToVector3(-1));
-
-            var cldr = ug.FindComponent<RectangleCollider2D>();
-            if (cldr.Intersects(ref r))
+            if (ms.RightButton == ButtonState.Pressed)
             {
-                webView.InjectMouseMove(ms.X, ms.Y);
-                if (ms.LeftButton == ButtonState.Pressed)
-                { webView.InjectMouseUp(MouseButton.Left); }
+                webView.InjectMouseDown(MouseButton.Right); return;
             }
+            if (ms.MiddleButton == ButtonState.Pressed)
+            {
+                webView.InjectMouseDown(MouseButton.Middle); return;
+            }
+            // Released
+            if (ms.LeftButton == ButtonState.Release)
+            {
+                webView.InjectMouseUp(MouseButton.Left);
+            }
+            if (ms.RightButton == ButtonState.Release)
+            {
+                webView.InjectMouseUp(MouseButton.Right);
+            }
+            if (ms.MiddleButton == ButtonState.Release)
+            {
+                webView.InjectMouseUp(MouseButton.Middle);
+            }
+            //}
         }
 
         private void OnMouseEnter()
@@ -359,6 +408,241 @@ namespace HumbleGuns
         private void OnMouseExit()
         {
             isScrollable = false;
+        }
+
+        private Modifiers MapModifiers(KeyboardState ks)
+        {
+            int modifiers = 0;
+
+            if (ks.Control == ButtonState.Pressed)
+                modifiers |= (int)Modifiers.ControlKey;
+
+            if (ks.Shift == ButtonState.Pressed)
+                modifiers |= (int)Modifiers.ShiftKey;
+
+            if (ks.LeftAlt == ButtonState.Pressed || ks.RightAlt == ButtonState.Pressed)
+                modifiers |= (int)Modifiers.AltKey;
+
+            return (Modifiers)modifiers;
+        }
+
+        private VirtualKey MapKeys(KeyboardState ks)
+        {
+
+            if (ks.IsKeyPressed(Keys.Back)) return VirtualKey.BACK;
+            if (ks.IsKeyPressed(Keys.Delete)) return VirtualKey.DELETE;
+            if (ks.IsKeyPressed(Keys.Tab)) return VirtualKey.TAB;
+            if (ks.IsKeyPressed(Keys.Clear)) return VirtualKey.CLEAR;
+            if (ks.IsKeyPressed(Keys.Enter)) return VirtualKey.RETURN;
+            if (ks.IsKeyPressed(Keys.Pause)) return VirtualKey.PAUSE;
+            if (ks.IsKeyPressed(Keys.Escape)) return VirtualKey.ESCAPE;
+            if (ks.IsKeyPressed(Keys.Space)) return VirtualKey.SPACE;
+            if (ks.IsKeyPressed(Keys.NumberPad0)) return VirtualKey.NUMPAD0;
+            if (ks.IsKeyPressed(Keys.NumberPad1)) return VirtualKey.NUMPAD1;
+            if (ks.IsKeyPressed(Keys.NumberPad2)) return VirtualKey.NUMPAD2;
+            if (ks.IsKeyPressed(Keys.NumberPad3)) return VirtualKey.NUMPAD3;
+            if (ks.IsKeyPressed(Keys.NumberPad4)) return VirtualKey.NUMPAD4;
+            if (ks.IsKeyPressed(Keys.NumberPad5)) return VirtualKey.NUMPAD5;
+            if (ks.IsKeyPressed(Keys.NumberPad6)) return VirtualKey.NUMPAD6;
+            if (ks.IsKeyPressed(Keys.NumberPad7)) return VirtualKey.NUMPAD7;
+            if (ks.IsKeyPressed(Keys.NumberPad8)) return VirtualKey.NUMPAD8;
+            if (ks.IsKeyPressed(Keys.NumberPad9)) return VirtualKey.NUMPAD9;
+            if (ks.IsKeyPressed(Keys.Period)) return VirtualKey.DECIMAL;
+            if (ks.IsKeyPressed(Keys.Divide)) return VirtualKey.DIVIDE;
+            if (ks.IsKeyPressed(Keys.Multiply)) return VirtualKey.MULTIPLY;
+            if (ks.IsKeyPressed(Keys.Subtract)) return VirtualKey.SUBTRACT;
+            if (ks.IsKeyPressed(Keys.Add)) return VirtualKey.ADD;
+            //case ks.KeypadEnter: return VirtualKey.SEPARATOR;
+            //if (ks.IsKeyPressed(Keys.KeypadEquals)) return VirtualKey.UNKNOWN;
+            if (ks.IsKeyPressed(Keys.Up)) return VirtualKey.UP;
+            if (ks.IsKeyPressed(Keys.Down)) return VirtualKey.DOWN;
+            if (ks.IsKeyPressed(Keys.Right)) return VirtualKey.RIGHT;
+            if (ks.IsKeyPressed(Keys.Left)) return VirtualKey.LEFT;
+            if (ks.IsKeyPressed(Keys.Insert)) return VirtualKey.INSERT;
+            if (ks.IsKeyPressed(Keys.Home)) return VirtualKey.HOME;
+            if (ks.IsKeyPressed(Keys.End)) return VirtualKey.END;
+            if (ks.IsKeyPressed(Keys.PageUp)) return VirtualKey.PRIOR;
+            if (ks.IsKeyPressed(Keys.PageDown)) return VirtualKey.NEXT;
+            if (ks.IsKeyPressed(Keys.F1)) return VirtualKey.F1;
+            if (ks.IsKeyPressed(Keys.F2)) return VirtualKey.F2;
+            if (ks.IsKeyPressed(Keys.F3)) return VirtualKey.F3;
+            if (ks.IsKeyPressed(Keys.F4)) return VirtualKey.F4;
+            if (ks.IsKeyPressed(Keys.F5)) return VirtualKey.F5;
+            if (ks.IsKeyPressed(Keys.F6)) return VirtualKey.F6;
+            if (ks.IsKeyPressed(Keys.F7)) return VirtualKey.F7;
+            if (ks.IsKeyPressed(Keys.F8)) return VirtualKey.F8;
+            if (ks.IsKeyPressed(Keys.F9)) return VirtualKey.F9;
+            if (ks.IsKeyPressed(Keys.F10)) return VirtualKey.F10;
+            if (ks.IsKeyPressed(Keys.F11)) return VirtualKey.F11;
+            if (ks.IsKeyPressed(Keys.F12)) return VirtualKey.F12;
+            if (ks.IsKeyPressed(Keys.F13)) return VirtualKey.F13;
+            if (ks.IsKeyPressed(Keys.F14)) return VirtualKey.F14;
+            if (ks.IsKeyPressed(Keys.F15)) return VirtualKey.F15;
+            if (ks.IsKeyPressed(Keys.Number0)) return VirtualKey.NUM_0;
+            if (ks.IsKeyPressed(Keys.Number1)) return VirtualKey.NUM_1;
+            if (ks.IsKeyPressed(Keys.Number2)) return VirtualKey.NUM_2;
+            if (ks.IsKeyPressed(Keys.Number3)) return VirtualKey.NUM_3;
+            if (ks.IsKeyPressed(Keys.Number4)) return VirtualKey.NUM_4;
+            if (ks.IsKeyPressed(Keys.Number5)) return VirtualKey.NUM_5;
+            if (ks.IsKeyPressed(Keys.Number6)) return VirtualKey.NUM_6;
+            if (ks.IsKeyPressed(Keys.Number7)) return VirtualKey.NUM_7;
+            if (ks.IsKeyPressed(Keys.Number8)) return VirtualKey.NUM_8;
+            if (ks.IsKeyPressed(Keys.Number9)) return VirtualKey.NUM_9;
+            //case ks.Exclaim: return VirtualKey.NUM_1;
+            ////if (ks.IsKeyPressed(Keys.DoubleQuote)) return VirtualKey.OEM_7;
+            ////if (ks.IsKeyPressed(Keys.Hash)) return VirtualKey.NUM_3;
+            ////if (ks.IsKeyPressed(Keys.Dollar)) return VirtualKey.NUM_4;
+            ////if (ks.IsKeyPressed(Keys.Ampersand)) return VirtualKey.NUM_7;
+            ////if (ks.IsKeyPressed(Keys.Quote)) return VirtualKey.OEM_7;
+            ////if (ks.IsKeyPressed(Keys.LeftParen)) return VirtualKey.NUM_9;
+            ////if (ks.IsKeyPressed(Keys.RightParen)) return VirtualKey.NUM_0;
+            ////if (ks.IsKeyPressed(Keys.Asterisk)) return VirtualKey.NUM_8;
+            ////if (ks.IsKeyPressed(Keys.Plus)) return VirtualKey.OEM_PLUS;
+            ////if (ks.IsKeyPressed(Keys.Comma)) return VirtualKey.OEM_COMMA;
+            ////if (ks.IsKeyPressed(Keys.Minus)) return VirtualKey.OEM_MINUS;
+            ////if (ks.IsKeyPressed(Keys.Period)) return VirtualKey.OEM_PERIOD;
+            ////if (ks.IsKeyPressed(Keys.Slash)) return VirtualKey.OEM_2;
+            ////if (ks.IsKeyPressed(Keys.Colon)) return VirtualKey.OEM_1;
+            ////if (ks.IsKeyPressed(Keys.Semicolon)) return VirtualKey.OEM_1;
+            ////if (ks.IsKeyPressed(Keys.Less)) return VirtualKey.OEM_COMMA;
+            ////if (ks.IsKeyPressed(Keys.Equals)) return VirtualKey.OEM_PLUS;
+            ////if (ks.IsKeyPressed(Keys.Greater)) return VirtualKey.OEM_PERIOD;
+            ////if (ks.IsKeyPressed(Keys.Question)) return VirtualKey.OEM_2;
+            ////if (ks.IsKeyPressed(Keys.At)) return VirtualKey.NUM_2;
+            ////if (ks.IsKeyPressed(Keys.LeftBracket)) return VirtualKey.OEM_4;
+            ////if (ks.IsKeyPressed(Keys.Backslash)) return VirtualKey.OEM_102;
+            ////if (ks.IsKeyPressed(Keys.RightBracket)) return VirtualKey.OEM_6;
+            ////if (ks.IsKeyPressed(Keys.Caret)) return VirtualKey.NUM_6;
+            ////if (ks.IsKeyPressed(Keys.Underscore)) return VirtualKey.OEM_MINUS;
+            ////if (ks.IsKeyPressed(Keys.BackQuote)) return VirtualKey.OEM_3;
+            if (ks.IsKeyPressed(Keys.A)) return VirtualKey.A;
+            if (ks.IsKeyPressed(Keys.B)) return VirtualKey.B;
+            if (ks.IsKeyPressed(Keys.C)) return VirtualKey.C;
+            if (ks.IsKeyPressed(Keys.D)) return VirtualKey.D;
+            if (ks.IsKeyPressed(Keys.E)) return VirtualKey.E;
+            if (ks.IsKeyPressed(Keys.F)) return VirtualKey.F;
+            if (ks.IsKeyPressed(Keys.G)) return VirtualKey.G;
+            if (ks.IsKeyPressed(Keys.H)) return VirtualKey.H;
+            if (ks.IsKeyPressed(Keys.I)) return VirtualKey.I;
+            if (ks.IsKeyPressed(Keys.J)) return VirtualKey.J;
+            if (ks.IsKeyPressed(Keys.K)) return VirtualKey.K;
+            if (ks.IsKeyPressed(Keys.L)) return VirtualKey.L;
+            if (ks.IsKeyPressed(Keys.M)) return VirtualKey.M;
+            if (ks.IsKeyPressed(Keys.N)) return VirtualKey.N;
+            if (ks.IsKeyPressed(Keys.O)) return VirtualKey.O;
+            if (ks.IsKeyPressed(Keys.P)) return VirtualKey.P;
+            if (ks.IsKeyPressed(Keys.Q)) return VirtualKey.Q;
+            if (ks.IsKeyPressed(Keys.R)) return VirtualKey.R;
+            if (ks.IsKeyPressed(Keys.S)) return VirtualKey.S;
+            if (ks.IsKeyPressed(Keys.T)) return VirtualKey.T;
+            if (ks.IsKeyPressed(Keys.U)) return VirtualKey.U;
+            if (ks.IsKeyPressed(Keys.V)) return VirtualKey.V;
+            if (ks.IsKeyPressed(Keys.W)) return VirtualKey.W;
+            if (ks.IsKeyPressed(Keys.X)) return VirtualKey.X;
+            if (ks.IsKeyPressed(Keys.Y)) return VirtualKey.Y;
+            if (ks.IsKeyPressed(Keys.Z)) return VirtualKey.Z;
+            if (ks.IsKeyPressed(Keys.NumberKeyLock)) return VirtualKey.NUMLOCK;
+            if (ks.IsKeyPressed(Keys.CapitalLock)) return VirtualKey.CAPITAL;
+            if (ks.IsKeyPressed(Keys.Scroll)) return VirtualKey.SCROLL;
+            if (ks.IsKeyPressed(Keys.RightShift)) return VirtualKey.RSHIFT;
+            if (ks.IsKeyPressed(Keys.LeftShift)) return VirtualKey.LSHIFT;
+            if (ks.IsKeyPressed(Keys.RightControl)) return VirtualKey.RCONTROL;
+            if (ks.IsKeyPressed(Keys.LeftControl)) return VirtualKey.LCONTROL;
+            if (ks.IsKeyPressed(Keys.RightAlt)) return VirtualKey.RMENU;
+            if (ks.IsKeyPressed(Keys.LeftAlt)) return VirtualKey.LMENU;
+            //case ks.LeftApple: return VirtualKey.LWIN;
+            if (ks.IsKeyPressed(Keys.LeftWindows)) return VirtualKey.LWIN;
+            //case ks.RightApple: return VirtualKey.RWIN;
+            if (ks.IsKeyPressed(Keys.RightWindows)) return VirtualKey.RWIN;
+            //case ks.AltGr: return VirtualKey.UNKNOWN;
+            if (ks.IsKeyPressed(Keys.Help)) return VirtualKey.HELP;
+            if (ks.IsKeyPressed(Keys.Print)) return VirtualKey.PRINT;
+            //case ks.SysReq: return VirtualKey.UNKNOWN;
+            if (ks.IsKeyPressed(Keys.Pause)) return VirtualKey.PAUSE;
+            if (ks.IsKeyPressed(Keys.Menu)) return VirtualKey.MENU;
+            //default: return 0;
+            else return 0;
+        }
+
+        private char? IsCharKeys(KeyboardState ks)
+        {
+            char? rslt = null;
+            if (ks.IsKeyPressed(Keys.Space)) rslt = ' ';
+            if (ks.IsKeyPressed(Keys.NumberPad0)) rslt = '0'; 
+            if (ks.IsKeyPressed(Keys.NumberPad1)) rslt = '1'; 
+            if (ks.IsKeyPressed(Keys.NumberPad2)) rslt = '2'; 
+            if (ks.IsKeyPressed(Keys.NumberPad3)) rslt = '3'; 
+            if (ks.IsKeyPressed(Keys.NumberPad4)) rslt = '4'; 
+            if (ks.IsKeyPressed(Keys.NumberPad5)) rslt = '5'; 
+            if (ks.IsKeyPressed(Keys.NumberPad6)) rslt = '6'; 
+            if (ks.IsKeyPressed(Keys.NumberPad7)) rslt = '7'; 
+            if (ks.IsKeyPressed(Keys.NumberPad8)) rslt = '8'; 
+            if (ks.IsKeyPressed(Keys.NumberPad9)) rslt = '9';
+
+            if (ks.IsKeyPressed(Keys.Number0)) rslt = '0';
+            if (ks.IsKeyPressed(Keys.Number1)) rslt = '1';
+            if (ks.IsKeyPressed(Keys.Number2)) rslt = '2';
+            if (ks.IsKeyPressed(Keys.Number3)) rslt = '3';
+            if (ks.IsKeyPressed(Keys.Number4)) rslt = '4';
+            if (ks.IsKeyPressed(Keys.Number5)) rslt = '5';
+            if (ks.IsKeyPressed(Keys.Number6)) rslt = '6';
+            if (ks.IsKeyPressed(Keys.Number7)) rslt = '7';
+            if (ks.IsKeyPressed(Keys.Number8)) rslt = '8';
+            if (ks.IsKeyPressed(Keys.Number9)) rslt = '9';
+            //case ks.Exclaim: return VirtualKey.NUM_1;
+            ////if (ks.IsKeyPressed(Keys.DoubleQuote)) return VirtualKey.OEM_7;
+            ////if (ks.IsKeyPressed(Keys.Hash)) return VirtualKey.NUM_3;
+            ////if (ks.IsKeyPressed(Keys.Dollar)) return VirtualKey.NUM_4;
+            ////if (ks.IsKeyPressed(Keys.Ampersand)) return VirtualKey.NUM_7;
+            ////if (ks.IsKeyPressed(Keys.Quote)) return VirtualKey.OEM_7;
+            ////if (ks.IsKeyPressed(Keys.LeftParen)) return VirtualKey.NUM_9;
+            ////if (ks.IsKeyPressed(Keys.RightParen)) return VirtualKey.NUM_0;
+            ////if (ks.IsKeyPressed(Keys.Asterisk)) return VirtualKey.NUM_8;
+            ////if (ks.IsKeyPressed(Keys.Plus)) return VirtualKey.OEM_PLUS;
+            ////if (ks.IsKeyPressed(Keys.Comma)) return VirtualKey.OEM_COMMA;
+            ////if (ks.IsKeyPressed(Keys.Minus)) return VirtualKey.OEM_MINUS;
+            ////if (ks.IsKeyPressed(Keys.Period)) return VirtualKey.OEM_PERIOD;
+            ////if (ks.IsKeyPressed(Keys.Slash)) return VirtualKey.OEM_2;
+            ////if (ks.IsKeyPressed(Keys.Colon)) return VirtualKey.OEM_1;
+            ////if (ks.IsKeyPressed(Keys.Semicolon)) return VirtualKey.OEM_1;
+            ////if (ks.IsKeyPressed(Keys.Less)) return VirtualKey.OEM_COMMA;
+            ////if (ks.IsKeyPressed(Keys.Equals)) return VirtualKey.OEM_PLUS;
+            ////if (ks.IsKeyPressed(Keys.Greater)) return VirtualKey.OEM_PERIOD;
+            ////if (ks.IsKeyPressed(Keys.Question)) return VirtualKey.OEM_2;
+            ////if (ks.IsKeyPressed(Keys.At)) return VirtualKey.NUM_2;
+            ////if (ks.IsKeyPressed(Keys.LeftBracket)) return VirtualKey.OEM_4;
+            ////if (ks.IsKeyPressed(Keys.Backslash)) return VirtualKey.OEM_102;
+            ////if (ks.IsKeyPressed(Keys.RightBracket)) return VirtualKey.OEM_6;
+            ////if (ks.IsKeyPressed(Keys.Caret)) return VirtualKey.NUM_6;
+            ////if (ks.IsKeyPressed(Keys.Underscore)) return VirtualKey.OEM_MINUS;
+            ////if (ks.IsKeyPressed(Keys.BackQuote)) return VirtualKey.OEM_3;
+            if (ks.IsKeyPressed(Keys.A)) rslt = 'a';
+            if (ks.IsKeyPressed(Keys.B)) rslt = 'b';
+            if (ks.IsKeyPressed(Keys.C)) rslt = 'c';
+            if (ks.IsKeyPressed(Keys.D)) rslt = 'd';
+            if (ks.IsKeyPressed(Keys.E)) rslt = 'e';
+            if (ks.IsKeyPressed(Keys.F)) rslt = 'f';
+            if (ks.IsKeyPressed(Keys.G)) rslt = 'g';
+            if (ks.IsKeyPressed(Keys.H)) rslt = 'h';
+            if (ks.IsKeyPressed(Keys.I)) rslt = 'i';
+            if (ks.IsKeyPressed(Keys.J)) rslt = 'j';
+            if (ks.IsKeyPressed(Keys.K)) rslt = 'k';
+            if (ks.IsKeyPressed(Keys.L)) rslt = 'l';
+            if (ks.IsKeyPressed(Keys.M)) rslt = 'm';
+            if (ks.IsKeyPressed(Keys.N)) rslt = 'n';
+            if (ks.IsKeyPressed(Keys.O)) rslt = 'o';
+            if (ks.IsKeyPressed(Keys.P)) rslt = 'p';
+            if (ks.IsKeyPressed(Keys.Q)) rslt = 'q';
+            if (ks.IsKeyPressed(Keys.R)) rslt = 'r';
+            if (ks.IsKeyPressed(Keys.S)) rslt = 's';
+            if (ks.IsKeyPressed(Keys.T)) rslt = 't';
+            if (ks.IsKeyPressed(Keys.U)) rslt = 'u';
+            if (ks.IsKeyPressed(Keys.V)) rslt = 'v';
+            if (ks.IsKeyPressed(Keys.W)) rslt = 'w';
+            if (ks.IsKeyPressed(Keys.X)) rslt = 'x';
+            if (ks.IsKeyPressed(Keys.Y)) rslt = 'y';
+            if (ks.IsKeyPressed(Keys.Z)) rslt = 'z';
+            return rslt;
         }
 
         private void RegisterEvents()

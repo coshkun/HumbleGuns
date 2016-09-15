@@ -1,19 +1,19 @@
 ﻿<GenerateInfo xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="WaveEditor.Exporter.Model">
   <files xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
     <d2p1:KeyValueOfstringFileHashesH8kexHFU>
-      <d2p1:Key>C:/Users/coskun/Documents/GitHub/Games/HumbleGuns/Content/Assets/GUI/rendertarget.jpg#WaveEditor.Exporter.Exporters.TextureExporter</d2p1:Key>
+      <d2p1:Key>C:/GitHub/Games/HumbleGuns/Content/Assets/GUI/rendertarget.jpg#WaveEditor.Exporter.Exporters.TextureExporter</d2p1:Key>
       <d2p1:Value>
         <FileHash>4c22d22da5739b507025287d060941c7</FileHash>
         <WinfoHash>e450935d23cc6ef17f951fe888990903</WinfoHash>
       </d2p1:Value>
     </d2p1:KeyValueOfstringFileHashesH8kexHFU>
     <d2p1:KeyValueOfstringFileHashesH8kexHFU>
-      <d2p1:Key>C:/Users/coskun/Documents/GitHub/Games/HumbleGuns/Content/Assets/Textures/DefaultTexture.png#WaveEditor.Exporter.Exporters.TextureExporter</d2p1:Key>
+      <d2p1:Key>C:/GitHub/Games/HumbleGuns/Content/Assets/Textures/DefaultTexture.png#WaveEditor.Exporter.Exporters.TextureExporter</d2p1:Key>
       <d2p1:Value>
         <FileHash>017e0d603db2235e78267f3cfb7afeff</FileHash>
         <WinfoHash>28d2f094b2c42106a5da604dc4618416</WinfoHash>
       </d2p1:Value>
     </d2p1:KeyValueOfstringFileHashesH8kexHFU>
   </files>
-  <id>BFEBFBFF000006FD</id>
+  <id>178BFBFF00100FA0</id>
 </GenerateInfo>
