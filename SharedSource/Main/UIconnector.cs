@@ -42,6 +42,8 @@ namespace HumbleGuns
 
         private bool isFocused = false;
         private bool isScrollable = false;
+        private bool isColliding = false;
+
         private static List<WebView> webViewList = new List<WebView>();
         private static WebView webView;
         private static WebSession session;
@@ -196,7 +198,7 @@ namespace HumbleGuns
                     CreateData(surface);
                 }
             }
-
+            
             //if ((gameTime.Milliseconds % (int)(UIEventListener.TickDelay * 1.5)) == 0) { UIEventListener.UpdateEvents(this); }
             /* if ((DateTime.Now.Subtract(UIEventListener.counter).Milliseconds % (int)(UIEventListener.TickDelay * 1.5)) == 0) */
             { UIEventListener.UpdateEvents(this); }
@@ -277,17 +279,17 @@ namespace HumbleGuns
             //hold inputs
             ks = WaveServices.Input.KeyboardState;
             ms = WaveServices.Input.MouseState;
-            
+
+            int latency = UIEventListener.HitTime.Subtract(UIEventListener.counter).Milliseconds;
             Labels.Add("x: ", ms.X);
             Labels.Add("y :", ms.Y);
-            Labels.Add("Latency: ", UIEventListener.HitTime.Subtract(UIEventListener.counter).Milliseconds.ToString());
+            Labels.Add("Latency: ", latency.ToString());
 
-            OnMouseOver();
-            OnMouseDown();
-
+            OnMouseOver(latency);
+            OnMouseDown(latency);
         }
 
-        private void OnMouseOver()
+        private void OnMouseOver(int latency)
         {
             if (!WebCore.IsInitialized)
                 return;
@@ -295,17 +297,20 @@ namespace HumbleGuns
             if (!isFocused)
                 Focus();
 
-            //Ray r = new WaveEngine.Common.Math.Ray(ms.Position.ToVector3(1), ms.Position.ToVector3(-1));
+            int x = ms.X;
+            int y = ms.Y;
+            //Ray r = new WaveEngine.Common.Math.Ray(new Vector3(x,y,1), new Vector3(x, y, -1));
 
             //var cldr = ug.FindComponent<RectangleCollider2D>();
-            //if (cldr.Intersects(ref r))
+            //isColliding = cldr.Intersects(ref r);
+            //if (latency % 2 == 0)
             //{
-            webView.InjectMouseMove(ms.X, ms.Y);
+                webView.InjectMouseMove(x, y);
             //    return;
             //}
         }
 
-        private void OnMouseDown()
+        private void OnMouseDown(int latency)
         {
             if (!WebCore.IsInitialized)
                 return;
@@ -323,9 +328,9 @@ namespace HumbleGuns
             if (ms.LeftButton == ButtonState.Pressed)
             {
                 //webView.InjectMouseMove(ms.X, ms.Y);
-                webView.InjectMouseUp(MouseButton.Left);
+                webView.InjectMouseDown(MouseButton.Left);
             }
-            else { return; }
+            else { webView.InjectMouseUp(MouseButton.Left); return; }
             //}
 
         }
