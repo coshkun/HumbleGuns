@@ -43,6 +43,7 @@ namespace HumbleGuns
         private bool isFocused = false;
         private bool isScrollable = false;
         private bool isColliding = false;
+        private bool isTyping = false;
 
         private static List<WebView> webViewList = new List<WebView>();
         private static WebView webView;
@@ -53,12 +54,12 @@ namespace HumbleGuns
         private static string tmpFileBuffer;
         private static Vector2 cam2pos;
         //hold Inputs
-        private static KeyboardState state;
-        private static MouseState ms;
+        private KeyboardState ks;
+        private MouseState ms;
         private static int Wheel;
+        private string lastChar;
 
         public Scene CurrentScene { get; private set; }
-        public KeyboardState ks { get; private set; }
 
         public UIconnector(Scene currentScene) : base()
         {
@@ -200,10 +201,13 @@ namespace HumbleGuns
                     CreateData(surface);
                 }
             }
+
             //hold inputs
-            state = WaveServices.Input.KeyboardState;
+            ks = WaveServices.Input.KeyboardState;
             ms = WaveServices.Input.MouseState;
             Wheel = ms.Wheel;
+
+            OnKeyPress(gameTime);
 
             //if ((gameTime.Milliseconds % (int)(UIEventListener.TickDelay * 1.5)) == 0) { UIEventListener.UpdateEvents(this); }
             /* if ((DateTime.Now.Subtract(UIEventListener.counter).Milliseconds % (int)(UIEventListener.TickDelay * 1.5)) == 0) */
@@ -285,42 +289,12 @@ namespace HumbleGuns
             ////hold inputs
             //ks = WaveServices.Input.KeyboardState;
             //ms = WaveServices.Input.MouseState;
+            //Wheel = ms.Wheel;
+
             OnMouseOver();
             OnMouseDown();
-            bool chk = CheckIfAnyKeyPressed(state);
 
-            // We only inject keyboard input when the GameObject has focus
-            if (isFocused == true)
-            {
-                if (chk)
-                {
-                    char? rslt = IsCharKeys(ks);
-                    if (rslt == null)
-                    {
-                        WebKeyboardEvent keyEvent = new WebKeyboardEvent();
-                        keyEvent.Type = WebKeyboardEventType.KeyDown;
-                        keyEvent.VirtualKeyCode = MapKeys(state);
-                        keyEvent.Modifiers = MapModifiers(state);
-                        webView.InjectKeyboardEvent(keyEvent);
-                    }
-                    else
-                    {
-                        WebKeyboardEvent keyEvent = new WebKeyboardEvent();
-                        keyEvent.Type = WebKeyboardEventType.Char;
-                        keyEvent.Text = rslt.ToString();  // new ushort[] { ushort.Parse(rslt), 0, 0, 0 };
-                        keyEvent.Modifiers = MapModifiers(ks);
-                        webView.InjectKeyboardEvent(keyEvent);
-                    }
-                }
-                else //if (e.type == WebKeyboardEventType.KeyUp)
-                {
-                    WebKeyboardEvent keyEvent = new WebKeyboardEvent();
-                    keyEvent.Type = WebKeyboardEventType.KeyUp;
-                    keyEvent.VirtualKeyCode = MapKeys(state);
-                    keyEvent.Modifiers = MapModifiers(state);
-                    webView.InjectKeyboardEvent(keyEvent);
-                }
-            }
+            bool chk = CheckIfAnyKeyPressed(WaveServices.Input.KeyboardState);
 
             //int latency = UIEventListener.HitTime.Subtract(UIEventListener.counter).Milliseconds;
             Labels.Add("x: ", ms.X);
@@ -328,14 +302,7 @@ namespace HumbleGuns
             Labels.Add("whl: ", chk.ToString());
         }
 
-        private bool CheckIfAnyKeyPressed(KeyboardState state)
-        {
-            bool rslt = false; int k = 0;
-            do {
-                rslt = state.IsKeyPressed((Keys)k); if (rslt) { break; }
-                k++; } while (k <= 250);
-            return rslt;
-        }
+
 
         private void OnMouseOver()
         {
@@ -410,6 +377,51 @@ namespace HumbleGuns
             isScrollable = false;
         }
 
+        private void OnKeyPress(TimeSpan gameTime)
+        {
+
+            bool chk = CheckIfAnyKeyPressed(WaveServices.Input.KeyboardState);
+
+            // We only inject keyboard input when the GameObject has focus
+            if (isFocused == true && isTyping == true)
+            {
+                if (chk)
+                {
+                    lastChar = IsCharKeys(ks);
+                    if (lastChar == "-1")
+                    {
+                        WebKeyboardEvent keysEvent = new WebKeyboardEvent();
+                        keysEvent.Type = WebKeyboardEventType.KeyDown;
+                        keysEvent.VirtualKeyCode = MapKeys(ks);
+                        keysEvent.Modifiers = MapModifiers(ks);
+                        webView.InjectKeyboardEvent(keysEvent);
+                        chk = false; WaveServices.Input.Update(gameTime);
+                        return;
+                    }
+                    else
+                    {
+                        WebKeyboardEvent keysEvent = new WebKeyboardEvent();
+                        keysEvent.Type = WebKeyboardEventType.Char;
+                        keysEvent.Text = lastChar;  // new ushort[] { ushort.Parse(rslt), 0, 0, 0 };
+                        keysEvent.Modifiers = MapModifiers(ks);
+                        webView.InjectKeyboardEvent(keysEvent);
+                        chk = false; WaveServices.Input.Update(gameTime);
+                        return;
+                    }
+                }
+                else
+                {
+                    WebKeyboardEvent keyEvent = new WebKeyboardEvent();
+                    keyEvent.Type = WebKeyboardEventType.KeyUp;
+                    keyEvent.VirtualKeyCode = MapKeys(ks);
+                    keyEvent.Modifiers = MapModifiers(ks);
+                    webView.InjectKeyboardEvent(keyEvent);
+                    isTyping = false;
+                    return;   
+                }
+            }
+        }
+
         private Modifiers MapModifiers(KeyboardState ks)
         {
             int modifiers = 0;
@@ -428,7 +440,6 @@ namespace HumbleGuns
 
         private VirtualKey MapKeys(KeyboardState ks)
         {
-
             if (ks.IsKeyPressed(Keys.Back)) return VirtualKey.BACK;
             if (ks.IsKeyPressed(Keys.Delete)) return VirtualKey.DELETE;
             if (ks.IsKeyPressed(Keys.Tab)) return VirtualKey.TAB;
@@ -564,31 +575,167 @@ namespace HumbleGuns
             else return 0;
         }
 
-        private char? IsCharKeys(KeyboardState ks)
+        private bool CheckIfAnyKeyPressed(KeyboardState state)
         {
-            char? rslt = null;
-            if (ks.IsKeyPressed(Keys.Space)) rslt = ' ';
-            if (ks.IsKeyPressed(Keys.NumberPad0)) rslt = '0'; 
-            if (ks.IsKeyPressed(Keys.NumberPad1)) rslt = '1'; 
-            if (ks.IsKeyPressed(Keys.NumberPad2)) rslt = '2'; 
-            if (ks.IsKeyPressed(Keys.NumberPad3)) rslt = '3'; 
-            if (ks.IsKeyPressed(Keys.NumberPad4)) rslt = '4'; 
-            if (ks.IsKeyPressed(Keys.NumberPad5)) rslt = '5'; 
-            if (ks.IsKeyPressed(Keys.NumberPad6)) rslt = '6'; 
-            if (ks.IsKeyPressed(Keys.NumberPad7)) rslt = '7'; 
-            if (ks.IsKeyPressed(Keys.NumberPad8)) rslt = '8'; 
-            if (ks.IsKeyPressed(Keys.NumberPad9)) rslt = '9';
+            if (ks.Back == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Delete == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Tab == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Clear == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Enter == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Pause == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Escape == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Space == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberPad0 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberPad1 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberPad2 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberPad3 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberPad4 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberPad5 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberPad6 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberPad7 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberPad8 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberPad9 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Period == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Divide == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Multiply == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Subtract == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Add == ButtonState.Pressed) { isTyping = true; return true; }
+            //case ks.KeypadEnter: return VirtualKey.SEPARATOR;
+            //if (ks.IsKeyPressed(Keys.KeypadEquals)) return VirtualKey.UNKNOWN;
+            if (ks.Up == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Down == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Right == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Left == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Insert == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Home == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.End == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.PageUp == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.PageDown == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F1 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F2 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F3 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F4 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F5 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F6 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F7 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F8 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F9 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F10 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F11 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F12 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F13 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F14 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F15 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Number0 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Number1 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Number2 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Number3 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Number4 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Number5 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Number6 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Number7 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Number8 == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Number9 == ButtonState.Pressed) { isTyping = true; return true; }
+            //case ks.Exclaim: return VirtualKey.NUM_1;
+            ////if (ks.IsKeyPressed(Keys.DoubleQuote)) return true;
+            ////if (ks.IsKeyPressed(Keys.Hash)) return true;
+            ////if (ks.IsKeyPressed(Keys.Dollar)) return true;
+            ////if (ks.IsKeyPressed(Keys.Ampersand)) return true;
+            ////if (ks.IsKeyPressed(Keys.Quote)) return true;
+            ////if (ks.IsKeyPressed(Keys.LeftParen)) return true;
+            ////if (ks.IsKeyPressed(Keys.RightParen)) return true;
+            ////if (ks.IsKeyPressed(Keys.Asterisk)) return true;
+            ////if (ks.IsKeyPressed(Keys.Plus)) return true;
+            ////if (ks.IsKeyPressed(Keys.Comma)) return true;
+            ////if (ks.IsKeyPressed(Keys.Minus)) return true;
+            ////if (ks.IsKeyPressed(Keys.Period)) return true;
+            ////if (ks.IsKeyPressed(Keys.Slash)) return true;
+            ////if (ks.IsKeyPressed(Keys.Colon)) return true;
+            ////if (ks.IsKeyPressed(Keys.Semicolon)) return true;
+            ////if (ks.IsKeyPressed(Keys.Less)) return true;
+            ////if (ks.IsKeyPressed(Keys.Equals)) return true;
+            ////if (ks.IsKeyPressed(Keys.Greater)) return true;
+            ////if (ks.IsKeyPressed(Keys.Question)) return true;
+            ////if (ks.IsKeyPressed(Keys.At)) return true;
+            ////if (ks.IsKeyPressed(Keys.LeftBracket)) return true;
+            ////if (ks.IsKeyPressed(Keys.Backslash)) return true;
+            ////if (ks.IsKeyPressed(Keys.RightBracket)) return true;
+            ////if (ks.IsKeyPressed(Keys.Caret)) return true;
+            ////if (ks.IsKeyPressed(Keys.Underscore)) return true;
+            ////if (ks.IsKeyPressed(Keys.BackQuote)) return true;
+            if (ks.A == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.B == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.C == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.D == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.E == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.F == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.G == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.H == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.I == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.J == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.K == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.L == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.M == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.N == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.O == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.P == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Q == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.R == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.S == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.T == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.U == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.V == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.W == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.X == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Y == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Z == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.NumberKeyLock == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.CapitalLock == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Scroll == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.RightShift == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.LeftShift == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.RightControl == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.LeftControl == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.RightAlt == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.LeftAlt == ButtonState.Pressed) { isTyping = true; return true; }
+            //case ks.LeftApple: return VirtualKey.LWIN;
+            if (ks.LeftWindows == ButtonState.Pressed) { isTyping = true; return true; }
+            //case ks.RightApple: return VirtualKey.RWIN;
+            if (ks.RightWindows == ButtonState.Pressed) { isTyping = true; return true; }
+            //case ks.AltGr: return VirtualKey.UNKNOWN;
+            if (ks.Help == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Print == ButtonState.Pressed) { isTyping = true; return true; }
+            //case ks.SysReq: return VirtualKey.UNKNOWN;
+            if (ks.Pause == ButtonState.Pressed) { isTyping = true; return true; }
+            if (ks.Menu == ButtonState.Pressed) { isTyping = true; return true; }
+            //default: return 0;
+            /*isTyping = false;*/ return false;
+        }
 
-            if (ks.IsKeyPressed(Keys.Number0)) rslt = '0';
-            if (ks.IsKeyPressed(Keys.Number1)) rslt = '1';
-            if (ks.IsKeyPressed(Keys.Number2)) rslt = '2';
-            if (ks.IsKeyPressed(Keys.Number3)) rslt = '3';
-            if (ks.IsKeyPressed(Keys.Number4)) rslt = '4';
-            if (ks.IsKeyPressed(Keys.Number5)) rslt = '5';
-            if (ks.IsKeyPressed(Keys.Number6)) rslt = '6';
-            if (ks.IsKeyPressed(Keys.Number7)) rslt = '7';
-            if (ks.IsKeyPressed(Keys.Number8)) rslt = '8';
-            if (ks.IsKeyPressed(Keys.Number9)) rslt = '9';
+        private string IsCharKeys(KeyboardState ks)
+        {
+            if (ks.Space == ButtonState.Pressed) { return " "; }
+            if (ks.NumberPad0  == ButtonState.Pressed) { return "0"; }
+            if (ks.NumberPad1  == ButtonState.Pressed) { return "1"; }
+            if (ks.NumberPad2  == ButtonState.Pressed) { return "2"; }
+            if (ks.NumberPad3  == ButtonState.Pressed) { return "3"; }
+            if (ks.NumberPad4  == ButtonState.Pressed) { return "4"; }
+            if (ks.NumberPad5  == ButtonState.Pressed) { return "5"; }
+            if (ks.NumberPad6  == ButtonState.Pressed) { return "6"; }
+            if (ks.NumberPad7  == ButtonState.Pressed) { return "7"; }
+            if (ks.NumberPad8  == ButtonState.Pressed) { return "8"; }
+            if (ks.NumberPad9  == ButtonState.Pressed) { return "9"; }
+
+            if (ks.Number0  == ButtonState.Pressed) { return "0"; }
+            if (ks.Number1  == ButtonState.Pressed) { return "1"; }
+            if (ks.Number2  == ButtonState.Pressed) { return "2"; }
+            if (ks.Number3  == ButtonState.Pressed) { return "3"; }
+            if (ks.Number4  == ButtonState.Pressed) { return "4"; }
+            if (ks.Number5  == ButtonState.Pressed) { return "5"; }
+            if (ks.Number6  == ButtonState.Pressed) { return "6"; }
+            if (ks.Number7  == ButtonState.Pressed) { return "7"; }
+            if (ks.Number8  == ButtonState.Pressed) { return "8"; }
+            if (ks.Number9  == ButtonState.Pressed) { return "9"; }
             //case ks.Exclaim: return VirtualKey.NUM_1;
             ////if (ks.IsKeyPressed(Keys.DoubleQuote)) return VirtualKey.OEM_7;
             ////if (ks.IsKeyPressed(Keys.Hash)) return VirtualKey.NUM_3;
@@ -616,33 +763,34 @@ namespace HumbleGuns
             ////if (ks.IsKeyPressed(Keys.Caret)) return VirtualKey.NUM_6;
             ////if (ks.IsKeyPressed(Keys.Underscore)) return VirtualKey.OEM_MINUS;
             ////if (ks.IsKeyPressed(Keys.BackQuote)) return VirtualKey.OEM_3;
-            if (ks.IsKeyPressed(Keys.A)) rslt = 'a';
-            if (ks.IsKeyPressed(Keys.B)) rslt = 'b';
-            if (ks.IsKeyPressed(Keys.C)) rslt = 'c';
-            if (ks.IsKeyPressed(Keys.D)) rslt = 'd';
-            if (ks.IsKeyPressed(Keys.E)) rslt = 'e';
-            if (ks.IsKeyPressed(Keys.F)) rslt = 'f';
-            if (ks.IsKeyPressed(Keys.G)) rslt = 'g';
-            if (ks.IsKeyPressed(Keys.H)) rslt = 'h';
-            if (ks.IsKeyPressed(Keys.I)) rslt = 'i';
-            if (ks.IsKeyPressed(Keys.J)) rslt = 'j';
-            if (ks.IsKeyPressed(Keys.K)) rslt = 'k';
-            if (ks.IsKeyPressed(Keys.L)) rslt = 'l';
-            if (ks.IsKeyPressed(Keys.M)) rslt = 'm';
-            if (ks.IsKeyPressed(Keys.N)) rslt = 'n';
-            if (ks.IsKeyPressed(Keys.O)) rslt = 'o';
-            if (ks.IsKeyPressed(Keys.P)) rslt = 'p';
-            if (ks.IsKeyPressed(Keys.Q)) rslt = 'q';
-            if (ks.IsKeyPressed(Keys.R)) rslt = 'r';
-            if (ks.IsKeyPressed(Keys.S)) rslt = 's';
-            if (ks.IsKeyPressed(Keys.T)) rslt = 't';
-            if (ks.IsKeyPressed(Keys.U)) rslt = 'u';
-            if (ks.IsKeyPressed(Keys.V)) rslt = 'v';
-            if (ks.IsKeyPressed(Keys.W)) rslt = 'w';
-            if (ks.IsKeyPressed(Keys.X)) rslt = 'x';
-            if (ks.IsKeyPressed(Keys.Y)) rslt = 'y';
-            if (ks.IsKeyPressed(Keys.Z)) rslt = 'z';
-            return rslt;
+            if (ks.A == ButtonState.Pressed)
+            { return "a"; }
+            if (ks.B == ButtonState.Pressed) { return "b"; }
+            if (ks.C == ButtonState.Pressed) { return "c"; }
+            if (ks.D == ButtonState.Pressed) { return "d"; }
+            if (ks.E == ButtonState.Pressed) { return "e"; }
+            if (ks.F == ButtonState.Pressed) { return "f"; }
+            if (ks.G == ButtonState.Pressed) { return "g"; }
+            if (ks.H == ButtonState.Pressed) { return "h"; }
+            if (ks.I == ButtonState.Pressed) { return "i"; }
+            if (ks.J == ButtonState.Pressed) { return "j"; }
+            if (ks.K == ButtonState.Pressed) { return "k"; }
+            if (ks.L == ButtonState.Pressed) { return "l"; }
+            if (ks.M == ButtonState.Pressed) { return "m"; }
+            if (ks.N == ButtonState.Pressed) { return "n"; }
+            if (ks.O == ButtonState.Pressed) { return "o"; }
+            if (ks.P == ButtonState.Pressed) { return "p"; }
+            if (ks.Q == ButtonState.Pressed) { return "q"; }
+            if (ks.R == ButtonState.Pressed) { return "r"; }
+            if (ks.S == ButtonState.Pressed) { return "s"; }
+            if (ks.T == ButtonState.Pressed) { return "t"; }
+            if (ks.U == ButtonState.Pressed) { return "u"; }
+            if (ks.V == ButtonState.Pressed) { return "v"; }
+            if (ks.W == ButtonState.Pressed) { return "w"; }
+            if (ks.X == ButtonState.Pressed) { return "x"; }
+            if (ks.Y == ButtonState.Pressed) { return "y"; }
+            if (ks.Z == ButtonState.Pressed) { return "z"; }
+            return "-1";
         }
 
         private void RegisterEvents()
